@@ -12,71 +12,93 @@ public class Person: Object {
     let walkingSpeed: CGFloat = 0.6
     var spriteIndex: CGFloat = 1
     var goal: Object?                   // This persons current goal object. Nil if none.
-    var goalDir: [Dir]?                 // The directions to get to the goal
-    
-    
-    // Pathfinding.
-    var directions = [Dir]()
+    var goalDirs = [Dir]()
+    var walkR: [SKTexture] // The directions to get to the goal
+    var walkL: [SKTexture] // The directions to get to the goal
 
-    init(walkCycleNamed: String, pos: Pos, type: ObjectType) {
-        let rect = CGRect(origin: CGPoint(x: 0.25, y: 0), size: CGSize(width: 0.25, height: 1.0))
-        var img = SKTexture(imageNamed: walkCycleNamed)
-        img = SKTexture(rect: rect, in: img)
-        super.init(img: img, rect: pos.toRect(), type: type)
+
+    init(walkCycleNamed: String, pos: Pos) {
+        walkR = [SKTexture(imageNamed: "guest_walk_1"),
+                   SKTexture(imageNamed: "guest_walk_2"),
+                   SKTexture(imageNamed: "guest_walk_3"),
+                   SKTexture(imageNamed: "guest_walk_2")]
+        walkL = [SKTexture(imageNamed: "guest_walk_left_1"),
+                 SKTexture(imageNamed: "guest_walk_left_2"),
+                 SKTexture(imageNamed: "guest_walk_left_3"),
+                 SKTexture(imageNamed: "guest_walk_left_2")]
+        walkR = walkR.map({$0.filteringMode = .nearest; return $0})
+        walkL = walkL.map({$0.filteringMode = .nearest; return $0})
+
+        super.init(img: walkR[1], rect: pos.toRect())
         anchorPoint = CGPoint(x: 0.5, y: 0)
-        isUserInteractionEnabled = false
     }
     
     required init?(coder aDecoder: NSCoder) {
+        walkR = []; walkL = []
         super.init(coder: aDecoder)
     }
 
     func Spawn(from: Object, goal: Object) {
-        move(to: from.getPos())
+        move(to: from.pos)
         run(SKAction.fadeIn(withDuration: 1))
-        //_ = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(Update), userInfo: nil, repeats: true)
-    }
-    
-    public func Despawn() {
-        
     }
     
     /** Walk toward the goal. */
-    public func walk() {
-        
-        // If no directions and not next to goal, generate new path.
-        if directions.count == 0, let obj = goal {
-            if obj.rect.isNextTo(pos: getPos()){
-                obj.interact(p: self)
-            } else {
-                
+    public func walk(to goal: Object, avoid: [Object]? = nil) {
+        generatePath(to: goal, avoid: avoid)
+        walk()
+    }
+    private func walk() {
+        // If no directions and not next to or already at goal, generate new path.
+        if let obj = goal as? Chair, goalDirs.count == 0 {
+            if (obj.rect.isNextTo(pos: pos) != nil) {
+                print("Framme!")
+                if obj.person == nil {
+                    obj.sitDown(prs: self)
+                } else {
+                    goal = nil
+                }
             }
-        } else if directions.count > 0 {
-            _ = directions.first!
+        } else if goalDirs.count > 0 {
+            var vector = CGVector()
+            var isWalkingRight = true
+            switch goalDirs.removeFirst() {
+            case .north:
+                vector = CGVector(dx: gridWidth/2, dy: gridHeight/2)
+                pos += Pos(col: 0, row: 1)
+            case .east:
+                vector = CGVector(dx: gridWidth/2, dy: -gridHeight/2)
+                pos += Pos(col: 1, row: 0)
+            case .south:
+                vector = CGVector(dx: -gridWidth/2, dy: -gridHeight/2)
+                pos += Pos(col: 0, row: -1)
+                isWalkingRight = false
+            case .west:
+                vector = CGVector(dx: -gridWidth/2, dy: gridHeight/2)
+                pos += Pos(col: -1, row: 0)
+                isWalkingRight = false
+            }
+            
+            let textures = isWalkingRight ? walkR : walkL
+            let ani = SKAction.animate(with: textures, timePerFrame: 0.2)
+            let move = SKAction.move(by: vector, duration: 0.8)
+            removeAllActions()
+            run(.group([ani, move])) {
+                self.walk()
+            }
         }
     }
     
-    private func walk(in dir: Dir) {
-        print("Tried to walk")
-        /*
-        switch dir {
-        case .north:
-            <#code#>
-        default:
-            <#code#>
-        }*/
-    }
-    
-    // 1: up 2: down 3: left 4: right
-    // var direction = 0
-    var gridPath: [[Int]]!          // Directions toward the goal.
+    var gridPath: [[Int]]!              // Directions toward the goal.
     var stepsLeft = Int.max
     var leastSteps = Int.max            // Idk actually.
     
-    public func generatePath(to goal: Object, avoid: [Object]? = nil) {
+    private func generatePath(to goal: Object, avoid: [Object]? = nil) {
         self.goal = goal
         let g = goal.rect
         gridPath = Array.init(repeating: Array.init(repeating: 0, count: maxCols), count: maxRows)
+        leastSteps = Int.max
+        stepsLeft = Int.max
         
         // Puts -1 where you can't go
         if let objs = avoid {
@@ -115,8 +137,8 @@ public class Person: Object {
         }
         
         // Save that path as directions
-        goalDir = generateDirs(grid: gridPath, start: rect.toPos())
-        print(goalDir)
+        goalDirs = generateDirs(grid: gridPath, start: pos).dropLast()
+        print(goalDirs as Any)
     }
     private func generatePath(pos: Pos, stepsTaken: Int) {
         
@@ -143,11 +165,18 @@ public class Person: Object {
         }
         else { return }
         
-        // Do the same for every direction
-        generatePath(pos: Pos(col: pos.col, row: pos.row + 1), stepsTaken: stepsTaken+1)
-        generatePath(pos: Pos(col: pos.col, row: pos.row - 1), stepsTaken: stepsTaken+1)
-        generatePath(pos: Pos(col: pos.col + 1, row: pos.row), stepsTaken: stepsTaken+1)
-        generatePath(pos: Pos(col: pos.col - 1, row: pos.row), stepsTaken: stepsTaken+1)
+        let nextToPos = [
+            Pos(col: 0, row: 1),
+            Pos(col: 0, row: -1),
+            Pos(col: 1, row: 0),
+            Pos(col: -1, row: 0)]
+        
+        for pos2 in nextToPos {
+            let pos3 = pos + pos2
+            if pos3.row < maxRows && pos3.row >= 0 && pos3.col < maxCols && pos3.col >= 0 {
+                generatePath(pos: pos3, stepsTaken: stepsTaken+1)
+            }
+        }
         
         /*
          This should produce a grid looking a bit like this
@@ -166,35 +195,60 @@ public class Person: Object {
     private func generateDirs(grid: [[Int]], start: Pos) -> [Dir] {
         let r = start.row
         let c = start.col
-        var value = 0
+        let rMax = grid.count
+        let cMax = grid[0].count
+
+        var value = grid[r][c]
         
         var lowestNum = Int.max
         var lowestNumDir: Dir = .north
         
-        if grid[r][c] == -3 {
+        // If you reached the goal, return.
+        if value == -3 {
             return []
         }
         
-        value = grid[r+1][c]
-        if (value != -3 && value != -1 && value < lowestNum) {
-            lowestNum = value
-            lowestNumDir = .north
+        if r+1 < rMax {
+            value = grid[r+1][c]
+            if value <= 0 && value != -3 { }
+            else
+            if value != -1 && value < lowestNum {
+                lowestNum = value
+                lowestNumDir = .north
+            }
         }
-        value = grid[r][c+1]
-        if (value != -3 && value != -1 && value < lowestNum) {
-            lowestNum = value
-            lowestNumDir = .east
+        
+        if c+1 < cMax {
+            value = grid[r][c+1]
+            if value <= 0 && value != -3 { }
+            else
+            if value != -1 && value < lowestNum {
+                lowestNum = value
+                lowestNumDir = .east
+            }
         }
-        value = grid[r-1][c]
-        if (value != -3 && value != -1 && value < lowestNum) {
-            lowestNum = value
-            lowestNumDir = .south
+        
+        if r-1 >= 0 {
+            value = grid[r-1][c]
+            if value <= 0 && value != -3 { }
+            else
+            if value != -1 && value < lowestNum {
+                lowestNum = value
+                lowestNumDir = .south
+            }
         }
-        value = grid[r][c-1]
-        if (value != -3 && value != -1 && value < lowestNum) {
-            lowestNum = value
-            lowestNumDir = .west
+            
+        if c-1 >= 0 {
+            value = grid[r][c-1]
+            if value <= 0 && value != -3 { }
+            else
+            if value != -1 && value < lowestNum {
+                lowestNum = value
+                lowestNumDir = .west
+            }
         }
+        
+        if value == Int.max { fatalError("Pathfinding did not result in a complete path.") }
         
         var arr = [Dir]()
         
@@ -214,91 +268,4 @@ public class Person: Object {
         }
         return arr
     }
-    
-    /*@objc private func Update() {
-        
-
-        
-        
-        print("path generated")
-        
-        if isWalking {            
-            let rect = CGRect(origin: CGPoint(x: 0 + spriteIndex * 0.25, y: 0),
-                              size: CGSize(width: 0.25,
-                                           height: 1.0))
-            
-            texture = SKTexture(rect: rect, in: walkCycle!)
-            
-            spriteIndex += 1
-            if spriteIndex >= 4 { spriteIndex = 0 }
-            
-            print("updated sprite")
-            
-            let x = currentPos.row
-            let y = currentPos.col
-            direction = 0
-            
-            // Check fastest direction
-            checkDirection(row: x, col: y-1, direction: 3)
-            checkDirection(row: x, col: y+1, direction: 4)
-            checkDirection(row: x-1, col: y, direction: 1)
-            checkDirection(row: x+1, col: y, direction: 2)
-            
-            var action: SKAction!
-            
-            // Move there       1: up 2: down 3: left 4: right
-            switch direction {
-            case 1:
-                action = SKAction.move(by: CGVector(dx: -40, dy: 20), duration: 0.5)
-                currentPos = Pos(col: currentPos.col, row: currentPos.row - 1)
-            case 2:
-                action = SKAction.move(by: CGVector(dx: 40, dy: -20), duration: 0.5)
-                currentPos = Pos(col: currentPos.col, row: currentPos.row + 1)
-            case 3:
-                action = SKAction.move(by: CGVector(dx: -40, dy: -20), duration: 0.5)
-                currentPos = Pos(col: currentPos.col - 1, row: currentPos.row)
-            case 4:
-                action = SKAction.move(by: CGVector(dx: 40, dy: 20), duration: 0.5)
-                currentPos = Pos(col: currentPos.col + 1, row: currentPos.row)
-            default:
-                // Has arrived at table
-                isWalking = false
-                
-               // targetTable?.used(by: self)
- 
-                // Set sprite to standing sprite
-                let rect = CGRect(origin: CGPoint(x: 0.25, y: 0), size: CGSize(width: 0.25, height: 1.0))
-                texture = SKTexture(rect: rect, in: walkCycle!)
-                
-                removeFromParent()
-                return
-            }
-            
-            print("direction: \(direction), stepsLeft: \(stepsLeft), currentPos: \(currentPos)")
-            
-            self.run(action)
-        }
- */
 }
-    
-    
-
-    
-    /*
-    func Move(to pos: Pos) {
-        
-        // Move to middle
-        anchorPoint = CGPoint(x: 0.5, y: 0)
-        position = CGPoint()
-
-        // Move to left edge
-        position.x = -80 * 5 + 40
-
-        // Move to correct square
-        let offsetPos = CGPoint(x: pos.row * 40 + pos.col * 40 , y: pos.col * 20 - pos.row * 20)
-        position.x = position.x + offsetPos.x
-        position.y = position.y + offsetPos.y
-        
-        // Update
-    }*/
-

@@ -23,6 +23,9 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
     var holdRecognizer : UILongPressGestureRecognizer!
     var tapRecognizer : UITapGestureRecognizer!
     
+    let act = SKAction.scale(to: 1.2, duration: 0.1)
+    let act2 = SKAction.scale(to: 1, duration: 0.1)
+    
     // Lists
     public var inventoryObjs = [Object]() // Objects not yet placed but bought
     public var placedObjs = [Object]() // Placed Objects
@@ -40,32 +43,86 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
         room.setup()
         
         // Objects
-        let test1 = Object(imageNamed: "tableBlack", rect: Rect(), type: .table)
-        let test5 = Object(imageNamed: "tableWhite", rect: Rect(col: 4, row: 4), type: .table)
-        let test2 = Object(imageNamed: "chairRed", rect: Rect(col: 4, row: 5), type: .chair)
-        let test3 = Object(imageNamed: "chairRed", rect: Rect(col: 4, row: 6), type: .chair)
-        let test4 = Object(imageNamed: "chairRed", rect: Rect(col: 0, row: 8), type: .chair)
-        let person1 = Person(walkCycleNamed: "guest1", pos: Pos(col: 3, row: 3), type: .guest)
-        let person2 = Person(walkCycleNamed: "waiter", pos: Pos(col: 6, row: 6), type: .waiter)
+        let test1 = Table(named: "tableBlack", rect: Rect(), type: .symetric)
+        let test5 = Table(named: "tableWhite", rect: Rect(c: 4, r: 4), type: .symetric)
+        let door1 = Door(named: "door_closed", rect: Rect(c: 2, r: 2, nc: 1, nr: 2), type: .semisymetric)
+        let test2 = Chair(named: "chair", rect: Rect(c: 4, r: 5), type: .direction)
+        let test3 = Chair(named: "chair", rect: Rect(c: 4, r: 6), type: .direction)
+        let test4 = Chair(named: "chair", rect: Rect(c: 0, r: 8), type: .direction)
+        let test6 = Chair(named: "chair", rect: Rect(c: 3, r: 8), type: .direction)
+        
+        let person1 = Person(walkCycleNamed: "guest1", pos: Pos(col: 3, row: 3))
+        let person2 = Person(walkCycleNamed: "guest1", pos: Pos(col: 0, row: 0))
+        let person3 = Person(walkCycleNamed: "guest1", pos: Pos(col: 7, row: 7))
+        
+        /*
+        let light = SKLightNode()
+        light.isEnabled = true
+        light.categoryBitMask = 1
+        let light2 = SKLightNode()
+        light2.isEnabled = true
+        light2.categoryBitMask = 1
+        
+        test5.shadowCastBitMask = 1
+        test2.shadowedBitMask = 1
+        test3.shadowCastBitMask = 1
+        test6.lightingBitMask = 1
+
+        test1.addChild(light)
+        test4.addChild(light2)*/
         
         room.add(obj: test1)
         room.add(obj: test2)
         room.add(obj: test3)
         room.add(obj: test4)
         room.add(obj: test5)
-        room.add(obj: person1)
-        room.add(obj: person2)
-        //room.remove(obj: test2)
+        room.add(obj: test6)
         
-        person1.generatePath(to: person2, avoid: room.objects)
+        room.add(obj: door1)
         
-        // Makes the room start a
+        room.spawn(prs: person1)
+        room.spawn(prs: person2)
+        room.spawn(prs: person3)
+        
+        
+        /** Cool, men testa att aligna den med gridden först.*/
+        /*
+        let sourcePositions: [float2] = [
+            float2(0, 1),   float2(0.5, 1),   float2(1, 1),
+            float2(0, 0.5), float2(0.5, 0.5), float2(1, 0.5),
+            float2(0, 0),   float2(0, 0),   float2(1, 0)
+        ]
+	
+        let destinationPositions: [float2] = [
+            float2(0.1, 0.9),   float2(0.5, 0.9),   float2(0.9, 0.9),
+            float2(0, 0.5), float2(0.5, 0.5), float2(1, 0.5),
+            float2(-0.1, 0.1),   float2(0.5, 0.1),   float2(1.1, 0.1)
+        ]
+        let warpGeometryGrid = SKWarpGeometryGrid(columns: 2,
+                                                  rows: 2,
+                                                  sourcePositions: sourcePositions,
+                                                  destinationPositions: destinationPositions)
+        let node = SKEffectNode()
+        node.warpGeometry = warpGeometryGrid
+        
+        node.addChild(room)
+
+        addChild(node)
+        
+        let node = SKTransformNode()
+        node.addChild(room)
+        node.setEulerAngles(float3(0, 1, 1))*/
+
         addChild(room)
         
         // Setup Hud
         hudNode.setup(size: self.size)
         hudNode.zPosition = 100
         addChild(hudNode)
+    }
+    
+    func deg2rad(_ number: Double) -> Double {
+        return number * .pi / 180
     }
 
     // Called after scene is presented
@@ -102,7 +159,6 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
         // Check if node has userInteraction enabeld
         if !node.isUserInteractionEnabled { return }
         
-        // If an object is Clicked
         if node.name == "add" {}
         else if node.name == "submit" || node.name == "cancel" {
             room.hideGrid()
@@ -116,9 +172,7 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
             }
         }
         else if node.name == "rotate" {
-            if let obj = room.getCurrent() {
-                obj.rotateClockW()
-            }
+            room.rotateCurrent()
         }
         else if node.name == "shop" {
             /*let transition:SKTransition = SKTransition.doorsCloseHorizontal(withDuration: 0.5)
@@ -127,13 +181,49 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
         }
     }
     @objc func hold(hold: UILongPressGestureRecognizer) {
+        
+        if let obj = wasObjectTouched(hold) {
+            if hold.state == .began {
+                
+                if let chair = obj as? Chair {
+                    if chair.person != nil {
+                        let person = chair.standUp()
+                        room.addChild(person)
+                        
+                    }
+                }
+                
+                if obj is Person { return }
+                
+                if room.hasCurrent() {
+                    let old = room.getCurrent()!
+                    if old != obj {
+                        if room.isValid(at: old.rect) { room.cfmCurrent() }
+                        else { room.cnlCurrent() }
+                        room.setCurrent(obj: obj)
+                    }
+                }
+                else { room.setCurrent(obj: obj) }
+                
+                room.showGrid()
+                hudNode.editMode()
+                
+                // If an object is held
+                obj.run(act)
+            }
+            else if hold.state == .ended {
+                obj.run(act2)
+            }
+        }
+        
+        // Convert to spritekit cordinates
+        var touchLocation = hold.location(in: hold.view)
+        touchLocation = self.convertPoint(fromView: touchLocation)
+        
+        // Check what node got touched
+        let node = atPoint(touchLocation)
+        
         if hold.state == .began {
-            // Convert to spritekit cordinates
-            var touchLocation = hold.location(in: hold.view)
-            touchLocation = self.convertPoint(fromView: touchLocation)
-            
-            // Check what node got touched
-            let node = atPoint(touchLocation)
             
             // Check if node has userInteraction enabeld
             if !node.isUserInteractionEnabled { return }
@@ -142,20 +232,25 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
                 if room.hasCurrent() {
                     let old = room.getCurrent()!
                     if old != new {
-                        if room.isValid(at: old.rect) {
-                            room.cfmCurrent()
-                        } else {
-                            room.cnlCurrent()
-                        }
+                        if room.isValid(at: old.rect) { room.cfmCurrent() }
+                        else { room.cnlCurrent() }
                         room.setCurrent(obj: new)
                     }
                 }
-                else {
-                    room.setCurrent(obj: new)
-                }
+                else { room.setCurrent(obj: new) }
                 
                 room.showGrid()
                 hudNode.editMode()
+                
+                // If an object is held
+                new.run(act)
+            }
+
+        }
+        else if hold.state == .ended {
+            // If an object is held
+            if let obj = node as? Object {
+                obj.run(act2)
             }
         }
     }
@@ -184,6 +279,18 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
             var touchLocation = pan.location(in: pan.view)
             touchLocation = convertPoint(fromView: touchLocation)
             touchedNode = atPoint(touchLocation)
+            
+            // If an object is held
+            if let obj = touchedNode as? Object {
+                obj.run(act)
+            }
+        }
+        
+        if pan.state == .ended {
+            // If an object is let go
+            if let obj = touchedNode as? Object {
+                obj.run(act2)
+            }
         }
         
         // Convert movment to spritekit cordinates
@@ -193,9 +300,9 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
         // If touched node is the object that is currently manipulated.
         if let obj = touchedNode as? Object, let obj2 = room.getCurrent(), obj == obj2 {
             if pan.state == .began {
-                obj.panStart = obj.getPos()
+                obj.panStart = obj.pos
             } else if pan.state == .changed {
-                if obj.panStart == nil { obj.panStart = obj.getPos() }
+                if obj.panStart == nil { obj.panStart = obj.pos }
                 
                 // Scale movement to scale
                 translation.x /= room.xScale
@@ -217,6 +324,28 @@ class RestaurantScene: SKScene, SKPhysicsContactDelegate, UIGestureRecognizerDel
                 room.position.y = roomStartPos.y + translation.y
             }
         }
+    }
+    
+    private func wasObjectTouched(_ recognizer: UIGestureRecognizer) -> Object? {
+        // Convert to spritekit cordinates
+        var touchLocation = recognizer.location(in: recognizer.view)
+        touchLocation = self.convertPoint(fromView: touchLocation)
+        
+        // Check what node got touched
+        let node = atPoint(touchLocation)
+        
+        var potObj = node as? Object
+        
+        if potObj == nil {
+            potObj = node.parent as? Object
+        }
+        
+        // Check if node has userInteraction enabeld
+        if potObj != nil {
+            if !potObj!.isUserInteractionEnabled { return nil }
+        }
+        
+        return potObj
     }
     
     override func update(_ currentTime: TimeInterval) {

@@ -25,7 +25,19 @@ public struct Pos {
         return !(lhs == rhs)
     }
     
+    static func + (lhs: Pos, rhs: Pos) -> Pos {
+        return Pos(col: lhs.col + rhs.col, row: lhs.row + rhs.row)
+    }
+    
+    static func += (left: inout Pos, right: Pos) {
+        left = left + right
+    }
+    
+    static func - (lhs: Pos, rhs: Pos) -> Pos {
+        return Pos(col: lhs.col - rhs.col, row: lhs.row - rhs.row)
+    }
+    
     public func toRect(width: Int = 1, height: Int = 1) -> Rect {
-        return Rect(col: col, row: row, width: width, height: height)
+        return Rect(c: col, r: row, nc: width, nr: height)
     }
 }

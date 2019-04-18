@@ -12,12 +12,9 @@ let gridWidth : CGFloat = 40
 let gridHeight: CGFloat = 20
 
 enum ObjectType {
-    case chair
-    case table
-    case door
-    case guest
-    case waiter
-    case other
+    case symetric
+    case semisymetric
+    case direction
 }
 
 public class Object: SKSpriteNode
@@ -25,58 +22,71 @@ public class Object: SKSpriteNode
     var rect: Rect          // Position and size of object in room-grid.
     var dir: Dir = .north   // Direction object is facing.
     var panStart: Pos?      // Nil unless user is moving the object. Represents pos when pan began.
-    var radius: Int = 0     // How big of a range this object has. Usually 0.
     var type: ObjectType    // What type of object is it?
-
-    public var width: Int {
-        get {
-            return rect.width
-        }
+    var pos: Pos {
+        get { return rect.pos }
         set {
-            rect.width = newValue
+            zPosition = CGFloat(10 + newValue.col - newValue.row)
+            rect.pos = newValue
         }
     }
-    public var height: Int {
-        get {
-            return rect.height
-        }
-        set {
-            rect.height = newValue
-        }
+    var width: Int {
+        get { return rect.ncol }
+        set { rect.ncol = newValue }
+    }
+    var height: Int {
+        get { return rect.nrow }
+        set { rect.nrow = newValue }
     }
     
     // Create a new Object and move it to the correct spot
-    init(img: SKTexture, rect: Rect, type: ObjectType = .other, anchor: CGPoint? = nil) {
+    init(img: SKTexture, rect: Rect, type: ObjectType = .symetric) {
         self.rect = rect
         self.type = type
         img.filteringMode = .nearest
         super.init(texture: img, color: .clear, size: img.size())
         
-        // Set anchorpoint to ingame leftmost square center or keep the one you got assigned
-        if anchor == nil {
-            let size = texture!.size()
-            anchorPoint = CGPoint(
-                x: 1 / (CGFloat(width) + 1),
-                y: CGFloat(height) / ((size.height / gridHeight) * 2)
-            )
-        } else {
-            anchorPoint = anchor!
-        }
-        
-        move(to: Pos(col: rect.col, row: rect.row))
+        setAnchor()
+        move(to: pos)
         isUserInteractionEnabled = true
     }
-    convenience init(imageNamed: String, rect: Rect, type: ObjectType = .other) {
-        let img = TextureHandler.getTexture(from: SKTexture(imageNamed: imageNamed), rect: rect)
-        self.init(img: img, rect: rect, type: type)
-        name = imageNamed
+    
+    private func setAnchor(point: CGPoint? = nil) {
+        if let point = point {
+            anchorPoint = point
+        } else {
+            let size = texture!.size()
+            anchorPoint = CGPoint(
+                x: gridWidth / size.width,
+                y: (CGFloat(rect.ncol) * (gridHeight)) / (2 * size.height)
+            )
+        }
     }
-    convenience init(obj: Object) {
-        self.init(img: obj.texture!, rect: obj.rect, type: obj.type, anchor: obj.anchorPoint)
+    
+    convenience init(named: String, rect: Rect, type: ObjectType) {
+        let img = Object.getTexture(named: named, type: type)
+        self.init(img: img, rect: rect, type: type)
+        name = named
+    }
+    
+    static private func getTexture(named: String, type: ObjectType, dir: Dir = .north) -> SKTexture{
+        switch type {
+        case .symetric:
+            return SKTexture(imageNamed: named)
+        case .semisymetric:
+            if dir == .east || dir == .north {
+                return SKTexture(imageNamed: "\(named)_east")
+            }
+            else {
+                return SKTexture(imageNamed: "\(named)_west")
+            }
+        case .direction:
+            return SKTexture(imageNamed: "\(named)_\(dir)")
+        }
     }
     required    init?(coder aDecoder: NSCoder) {
         self.rect = Rect()
-        self.type = .other
+        self.type = .symetric
 
         super.init(coder: aDecoder)
     }
@@ -110,7 +120,7 @@ public class Object: SKSpriteNode
             y: pos.row * dist/2 - pos.col * dist/2
         )
         
-        rect.setPos(row: rect.row + pos.row, col: rect.col + pos.col)
+        rect.pos = Pos(col: rect.col + pos.col, row: rect.row + pos.row)
         zPosition += CGFloat(pos.col - pos.row)
         position.x = position.x + offset.x
         position.y = position.y + offset.y
@@ -125,9 +135,9 @@ public class Object: SKSpriteNode
     public func move(to pos: Pos) {
         // Move to (0,0)
         position = CGPoint()
-        position.x = -gridWidth * 4.5
+        position.x = -gridWidth * 4
         zPosition = 10
-        rect.setPos(row: 0, col: 0)
+        self.pos = Pos(col: 0, row: 0)
         
         // Move to correct position
         move(delta: pos)
@@ -145,33 +155,31 @@ public class Object: SKSpriteNode
         path.addLine(to: CGPoint(x: 0, y: 10))
         path.close()
         
-        let radiusNode = SKShapeNode(path: path.cgPath)
-        radiusNode.fillColor = c
-        radiusNode.lineWidth = 1
-        radiusNode.strokeColor = c
-        radiusNode.zPosition = zPosition - 1
-        radiusNode.alpha = 0.5
-        
-        addChild(radiusNode)
+        for col in 0..<rect.ncol {
+            for row in 0..<rect.nrow {
+                let radiusNode = SKShapeNode(path: path.cgPath)
+                radiusNode.fillColor = c
+                radiusNode.lineWidth = 1
+                radiusNode.strokeColor = c
+                radiusNode.zPosition = -1       // Based on current nodes z pos i think, this makes sure its always lower
+                radiusNode.alpha = 0.5
+                
+                radiusNode.position.x += -gridWidth/2 + CGFloat(col)*gridWidth/2 + CGFloat(row)*gridWidth/2
+                radiusNode.position.y +=  CGFloat(row)*gridHeight/2 + CGFloat(col)*gridHeight/2
+                
+                addChild(radiusNode)
+            }
+        }
         
     }
     public func removeRadius() {
         removeAllChildren()
     }
     
-    // Sets or gets pos.
-    public func getPos() -> Pos {
-        return rect.toPos()
-    }
-    
     public func interact(p: Person) {
         print("\(p.name ?? "person") interacted with \(name ?? "obj")")
     }
     
-    // Clone this object to a new object
-    public func clone() -> Object {
-        return Object(obj: self)
-    }
     public func printObj() {
         print("Object: \(String(describing: name)), " +
             "PosX: \(position.x), PosY: \(position.y). Rect: \(rect.toStr()), zPos: \(zPosition)")
@@ -179,7 +187,9 @@ public class Object: SKSpriteNode
     
     public func rotate(to dir: Dir) {
         self.dir = dir
-        updateTexture()
+        texture = Object.getTexture(named: name!, type: type, dir: dir)
+        setAnchor()
+        move(to: pos)
     }
     public func rotateClockW() {
         var n = dir.rawValue + 1;
@@ -192,13 +202,11 @@ public class Object: SKSpriteNode
         rotate(to: Dir(rawValue: n)!)
     }
     
-
-    
     /** Sets the right texture for the current dir. Assumes both texture and dir are correct */
     private func updateTexture() {
         let size = texture!.size().width / texture!.textureRect().width
         let xSquares = Int((size / 20).rounded())
-        let length = rect.width >= rect.height ? rect.width : rect.height
+        let length = rect.ncol >= rect.nrow ? rect.ncol : rect.nrow
         var imgRect: CGRect = CGRect()
         
         switch length+1 {
@@ -212,5 +220,10 @@ public class Object: SKSpriteNode
         }
         
         texture = SKTexture(rect: imgRect, in: texture!)
+    }
+    
+    /** Override this if object should be placed next to something specific for example. */
+    public func isCorrectlyPlaced(objs: [Object]) -> Bool {
+        return true
     }
 }

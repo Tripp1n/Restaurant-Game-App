@@ -13,4 +13,14 @@ public enum Dir: Int {
     case east
     case south
     case west
+    
+    var description : String {
+        switch self {
+        // Use Internationalization, as appropriate.
+        case .north:    return "north"
+        case .east:     return "east"
+        case .south:    return "south"
+        case .west:     return "west"
+        }
+    }
 }

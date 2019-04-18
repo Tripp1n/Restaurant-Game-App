@@ -13,9 +13,13 @@ var maxCols = 9         // 0 to 8 is default allowed positions
 
 public class RoomNode : SKNode
 {
-    var objects = [Object]()   // All placed objects in the room
-    private var currObj: Object?       // Obj that is currently being manipulated.
-    private var currObjRef: Object?    // Reference to non visible but not yet deleted backup.
+    var objects = [Object]()            // All placed objects in the room
+    private var people = [Person]()     // All people in the room
+    private var currObj: Object?        // ref to an object in objects
+    
+    // Save pos and dir in case they cancel.
+    private var orgPos = Pos()
+    private var orgDir = Dir.north
     
     private let grid: SKNode = SKNode()
     private let moveAudio: SKAudioNode = SKAudioNode(fileNamed: "click")
@@ -27,6 +31,23 @@ public class RoomNode : SKNode
         update()
     }
     
+    public func spawn(prs: Person) {
+        people.append(prs)
+        addChild(prs)
+        prs.run(.fadeIn(withDuration: 0.5)) {
+            // After fadeIn
+            let chairs = self.objects.filter({$0 is Chair}) as! [Chair]
+            let emptyChairs = chairs.filter({$0.person == nil})
+            
+            if !emptyChairs.isEmpty {
+                prs.walk(to: emptyChairs.first!, avoid: self.objects)
+            } else {
+                print("I wanna go home")
+                // TODO: Generate path to exit door.
+            }
+        }
+    }
+    
     /** Remove an object from the room.
      This will both remove the object and stop displaying it.
      */
@@ -35,23 +56,30 @@ public class RoomNode : SKNode
         obj.removeFromParent()
     }
     
+    private func despawn(prs: Person) {
+        print("Have not yet implemented despawn")
+    }
+    
     /** Update the goals of people and move them */
-    private func update() {
-        /*
-        let guests = objects.filter({x in x is Person && x.type == .guest }) as! [Person]
-        var goalLessGuests = guests.filter({$0.goal == nil})
-        var emptyChairs = objects.filter({x in x.type == .chair && x.person == nil })
+    @objc private func update() {
+        let idleGuests = people.filter({$0.goal == nil})
         
-        while goalLessGuests.count > 0 && emptyChairs.count > 0 {
-            goalLessGuests.first?.goal = emptyChairs.first
-            goalLessGuests.removeFirst(); emptyChairs.removeFirst()
-        }
+        var emptyChairs = objects.filter({ obj in
+            if let chair = obj as? Chair {
+                if chair.person == nil {
+                    return true
+                }
+                else { return false }
+            }
+            else { return false }
+        })
         
-        let people = objects.filter({$0 is Person}) as! [Person]
-        for person in people {
-            person.walk()
+        for guest in idleGuests {
+            if !emptyChairs.isEmpty {
+                guest.walk(to: emptyChairs.removeFirst(), avoid: objects)
+            }
         }
- */
+        print("updated")
     }
     
     // CONSIDER MOVING THESE TO A OBJECT HANDLER CLASS OR SOMETHING
@@ -59,23 +87,10 @@ public class RoomNode : SKNode
      Stops displaying the original node, and creates a copy that can be manipulated.
      */
     public func setCurrent(obj: Object) {
-        obj.printObj()
-        
-        // Removes original and saves reference
-        obj.removeFromParent()
-        remove(obj: obj)
-        currObjRef = obj
-        currObjRef!.name = "ref"
-        
-        // Creates a new clone
-        currObj = obj.clone()
-        currObj!.name = "currObj"
-        
-        // Update posColor
-        currObj!.displayRadius(color: posColor(obj))
-
-        // Display clone
-        addChild(currObj!)
+        orgDir = obj.dir
+        orgPos = obj.pos
+        currObj = obj
+        objects.removeAll(where: { x in x === obj })
     }
     public func hasCurrent() -> Bool {
         return currObj != nil
@@ -83,27 +98,22 @@ public class RoomNode : SKNode
     public func getCurrent() -> Object? {
         return currObj
     }
-    public func getRef() -> Object? {
-        return currObjRef
-    }
     
     /** Replaces ref with current. */
     public func cfmCurrent() {
-        currObj!.alpha = 1
-        currObj!.removeFromParent()
-        currObj!.removeRadius()
-        add(obj: currObj!)
-        currObj = nil
-        currObjRef = nil
+        if currObj != nil {
+            currObj!.removeRadius()
+            objects.append(currObj!)
+            currObj = nil
+        }
     }
     
     /** Resets the current obj to the way it was before. Returns if no current obj is defined. */
     public func cnlCurrent() {
         if currObj != nil {
-            add(obj: currObjRef!)
-            remove(obj: currObj!)
-            currObj = nil
-            currObjRef = nil
+            currObj!.dir = orgDir
+            currObj!.pos = orgPos
+            cfmCurrent()
         }
     }
     
@@ -117,11 +127,11 @@ public class RoomNode : SKNode
             let colStep = (-ySteps + xSteps)/2
             let r = pos.row + rowStep
             let c = pos.col + colStep
-            let curntRect = Rect(col: c, row: r, width: obj.width, height: obj.height)
+            let curntRect = Rect(c: c, r: r, nc: obj.width, nr: obj.height)
             
             if isInsideRoom(at: curntRect) {
                 if curntRect != obj.rect {
-                    obj.move(to: curntRect.toPos())
+                    obj.move(to: curntRect.pos)
                     obj.displayRadius(color: posColor(obj))
                     moveAudio.run(.play())
                 }
@@ -129,14 +139,22 @@ public class RoomNode : SKNode
         }
     }
     
+    public func rotateCurrent() {
+        if let obj = currObj {
+            obj.rotateClockW()
+            obj.displayRadius(color: posColor(obj))
+        }
+    }
+    
     /** Calculate the position color */
     private func posColor(_ obj: Object) -> SKColor {
-        if (isUnoccupied(at: obj.rect)) {
-            return .green
-        } else {
+        if (!isUnoccupied(at: obj.rect)) {
             return .red
+        } else if (!obj.isCorrectlyPlaced(objs: objects)) {
+            return .yellow
+        } else {
+            return .green
         }
-
     }
     // CONSIDER MOVING THESE TO A OBJECT HANDLER CLASS OR SOMETHING
     
@@ -149,8 +167,8 @@ public class RoomNode : SKNode
     private func isInsideRoom(at rect: Rect) -> Bool {
         let c = rect.col
         let r = rect.row
-        let w = rect.width
-        let h = rect.height
+        let w = rect.ncol
+        let h = rect.nrow
         return r >= 0 && r+h-1 <= maxRows-1 && c >= 0 && c+w-1 <= maxCols-1
     }
     
@@ -185,7 +203,8 @@ public class RoomNode : SKNode
     public func setup() {
         xScale = 2
         yScale = 2
-        position = CGPoint(x: frame.midX, y: frame.midY)
+        
+        //position = CGPoint(x: frame.midX, y: frame.midY)
         
         moveAudio.autoplayLooped = false
         addChild(moveAudio)
@@ -272,6 +291,9 @@ public class RoomNode : SKNode
             lineNode2.isUserInteractionEnabled = false
             grid.addChild(lineNode2)
         }
+        
+        // Create a function that is repetedly called every second
+        _ = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
     }
     
     public func hideGrid() {
@@ -283,7 +305,6 @@ public class RoomNode : SKNode
     }
     
     public func printCrntObjs() {
-        currObjRef!.printObj()
         currObj!.printObj()
     }
 }

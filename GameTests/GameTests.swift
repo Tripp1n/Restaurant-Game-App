@@ -25,10 +25,10 @@ class GameTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
         
-        let medRect = Rect(col: 3, row: 3, width: 2, height: 3)
-        let smallRect = Rect(col: 3, row: 4, width: 1, height: 1)
-        let smallRect2 = Rect(col: 5, row: 5, width: 1, height: 1)
-        let bigRect = Rect(col: 1, row: 1, width: 4, height: 4)
+        let medRect = Rect(col: 3, row: 3, ncol: 2, nrow: 3)
+        let smallRect = Rect(col: 3, row: 4, ncol: 1, nrow: 1)
+        let smallRect2 = Rect(col: 5, row: 5, ncol: 1, nrow: 1)
+        let bigRect = Rect(col: 1, row: 1, ncol: 4, nrow: 4)
 
         XCTAssert(medRect.contains(rect: smallRect))
         XCTAssert(bigRect.contains(rect: smallRect))

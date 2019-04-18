@@ -37,7 +37,7 @@ class GameViewController: UIViewController {
     }
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return UIInterfaceOrientationMask.portrait
+        return UIInterfaceOrientationMask.landscape
         
     }
     

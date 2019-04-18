@@ -16,8 +16,6 @@
 		4A4839D1204F30A10027CD4E /* GameUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839D0204F30A10027CD4E /* GameUITests.swift */; };
 		4A4839E0204F320B0027CD4E /* RoomNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839DF204F320B0027CD4E /* RoomNode.swift */; };
 		4A4839E6205C10220027CD4E /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839E5205C10220027CD4E /* Object.swift */; };
-		4A6E42722075544B00F7FBC8 /* DoorNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6E42712075544B00F7FBC8 /* DoorNode.swift */; };
-		4A6E42742077E45000F7FBC8 /* TableNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6E42732077E45000F7FBC8 /* TableNode.swift */; };
 		4A6E4276207DEB9D00F7FBC8 /* Future Features.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 4A6E4275207DEB9D00F7FBC8 /* Future Features.rtf */; };
 		4A6E427A2089BE4C00F7FBC8 /* Person.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6E42792089BE4B00F7FBC8 /* Person.swift */; };
 		4A88D14F206645490003FB13 /* HudNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A88D14E206645490003FB13 /* HudNode.swift */; };
@@ -27,6 +25,12 @@
 		4C1553D4217C9330006598A6 /* CustomViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1553D3217C9330006598A6 /* CustomViewController.swift */; };
 		4C1553D6217C9415006598A6 /* lightingTestScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1553D5217C9415006598A6 /* lightingTestScene.swift */; };
 		4C1553D8217C9CE8006598A6 /* ShopObj.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1553D7217C9CE8006598A6 /* ShopObj.swift */; };
+		4C63C46F2261EE5C00CF94D3 /* Chair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C63C46E2261EE5C00CF94D3 /* Chair.swift */; };
+		4C63C4702261F00700CF94D3 /* Chair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C63C46E2261EE5C00CF94D3 /* Chair.swift */; };
+		4C63C4712261F00700CF94D3 /* Chair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C63C46E2261EE5C00CF94D3 /* Chair.swift */; };
+		4C81F5F72268A24B004CE708 /* Door.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C81F5F62268A24B004CE708 /* Door.swift */; };
+		4C81F5F82268A24B004CE708 /* Door.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C81F5F62268A24B004CE708 /* Door.swift */; };
+		4C81F5F92268A24B004CE708 /* Door.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C81F5F62268A24B004CE708 /* Door.swift */; };
 		4C907C192257CA7F008037E4 /* Rect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CAFF17A2253D863003EFC13 /* Rect.swift */; };
 		4C907C1A2257CA81008037E4 /* Pos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CAFF17D2253D8A0003EFC13 /* Pos.swift */; };
 		4C907C1B2257CA89008037E4 /* HudNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A88D14E206645490003FB13 /* HudNode.swift */; };
@@ -39,13 +43,13 @@
 		4CAFF17C2253D863003EFC13 /* Rect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CAFF17A2253D863003EFC13 /* Rect.swift */; };
 		4CAFF17E2253D8A0003EFC13 /* Pos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CAFF17D2253D8A0003EFC13 /* Pos.swift */; };
 		4CAFF17F2253D8A0003EFC13 /* Pos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CAFF17D2253D8A0003EFC13 /* Pos.swift */; };
+		4CC79F8B2268AF9700A84460 /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC79F8A2268AF9700A84460 /* Table.swift */; };
+		4CC79F8C2268AFD300A84460 /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC79F8A2268AF9700A84460 /* Table.swift */; };
+		4CC79F8D2268AFD300A84460 /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC79F8A2268AF9700A84460 /* Table.swift */; };
 		4CCB046E2255441B00754DAD /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839E5205C10220027CD4E /* Object.swift */; };
 		4CCB046F2255441E00754DAD /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839E5205C10220027CD4E /* Object.swift */; };
 		4CDB7D46216A5CCE0055BA7E /* TestScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDB7D45216A5CCE0055BA7E /* TestScene.swift */; };
 		4CDB7D49216A60B60055BA7E /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDB7D48216A60B60055BA7E /* Button.swift */; };
-		4CE08197225E6B3200B41864 /* TextureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE08196225E6B3200B41864 /* TextureHandler.swift */; };
-		4CE08198225E6B3200B41864 /* TextureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE08196225E6B3200B41864 /* TextureHandler.swift */; };
-		4CE08199225E6B3200B41864 /* TextureHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE08196225E6B3200B41864 /* TextureHandler.swift */; };
 		4CE0819A225E744300B41864 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839B0204F30A10027CD4E /* GameScene.swift */; };
 		4CE081A1225E748700B41864 /* Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE081A0225E748700B41864 /* Direction.swift */; };
 		4CE081A2225E748700B41864 /* Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE081A0225E748700B41864 /* Direction.swift */; };
@@ -90,8 +94,6 @@
 		4A4839D2204F30A10027CD4E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A4839DF204F320B0027CD4E /* RoomNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RoomNode.swift; path = Nodes/RoomNode.swift; sourceTree = "<group>"; };
 		4A4839E5205C10220027CD4E /* Object.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Object.swift; path = Nodes/Objects/Object.swift; sourceTree = "<group>"; };
-		4A6E42712075544B00F7FBC8 /* DoorNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoorNode.swift; sourceTree = "<group>"; };
-		4A6E42732077E45000F7FBC8 /* TableNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableNode.swift; sourceTree = "<group>"; };
 		4A6E4275207DEB9D00F7FBC8 /* Future Features.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = "Future Features.rtf"; sourceTree = "<group>"; };
 		4A6E42792089BE4B00F7FBC8 /* Person.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Person.swift; path = Nodes/Person.swift; sourceTree = "<group>"; };
 		4A88D14E206645490003FB13 /* HudNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = HudNode.swift; path = Nodes/HudNode.swift; sourceTree = "<group>"; };
@@ -101,13 +103,15 @@
 		4C1553D3217C9330006598A6 /* CustomViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomViewController.swift; sourceTree = "<group>"; };
 		4C1553D5217C9415006598A6 /* lightingTestScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = lightingTestScene.swift; sourceTree = "<group>"; };
 		4C1553D7217C9CE8006598A6 /* ShopObj.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopObj.swift; sourceTree = "<group>"; };
+		4C63C46E2261EE5C00CF94D3 /* Chair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chair.swift; sourceTree = "<group>"; };
+		4C81F5F62268A24B004CE708 /* Door.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Door.swift; sourceTree = "<group>"; };
 		4C907C2B2258F87C008037E4 /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
 		4C907C2C2258F87D008037E4 /* Welcome.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Welcome.mp3; sourceTree = "<group>"; };
 		4CAFF17A2253D863003EFC13 /* Rect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Rect.swift; sourceTree = "<group>"; };
 		4CAFF17D2253D8A0003EFC13 /* Pos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pos.swift; sourceTree = "<group>"; };
+		4CC79F8A2268AF9700A84460 /* Table.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Table.swift; sourceTree = "<group>"; };
 		4CDB7D45216A5CCE0055BA7E /* TestScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestScene.swift; sourceTree = "<group>"; };
 		4CDB7D48216A60B60055BA7E /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
-		4CE08196225E6B3200B41864 /* TextureHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureHandler.swift; sourceTree = "<group>"; };
 		4CE081A0225E748700B41864 /* Direction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Direction.swift; sourceTree = "<group>"; };
 		4CF8DC1D225BB5C400F5A5E9 /* Test.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = Test.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
@@ -165,11 +169,12 @@
 				4A4839DF204F320B0027CD4E /* RoomNode.swift */,
 				4A88D14E206645490003FB13 /* HudNode.swift */,
 				4A4839E5205C10220027CD4E /* Object.swift */,
-				4CE08196225E6B3200B41864 /* TextureHandler.swift */,
+				4C63C46E2261EE5C00CF94D3 /* Chair.swift */,
 				4A6E42792089BE4B00F7FBC8 /* Person.swift */,
 				4CAFF17A2253D863003EFC13 /* Rect.swift */,
 				4CAFF17D2253D8A0003EFC13 /* Pos.swift */,
 				4CE081A0225E748700B41864 /* Direction.swift */,
+				4C81F5F62268A24B004CE708 /* Door.swift */,
 				4C907C2B2258F87C008037E4 /* click.wav */,
 				4C907C2C2258F87D008037E4 /* Welcome.mp3 */,
 				4C1553D2217C931A006598A6 /* Stolen Code */,
@@ -184,6 +189,7 @@
 				4A4839BC204F30A10027CD4E /* Info.plist */,
 				4AAB8FF52068425400386924 /* Notes.swift */,
 				4A6E4275207DEB9D00F7FBC8 /* Future Features.rtf */,
+				4CC79F8A2268AF9700A84460 /* Table.swift */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -228,8 +234,6 @@
 		4A6E42702075542300F7FBC8 /* Objects */ = {
 			isa = PBXGroup;
 			children = (
-				4A6E42712075544B00F7FBC8 /* DoorNode.swift */,
-				4A6E42732077E45000F7FBC8 /* TableNode.swift */,
 				4C1553D7217C9CE8006598A6 /* ShopObj.swift */,
 			);
 			path = Objects;
@@ -396,14 +400,14 @@
 				4A4839B1204F30A10027CD4E /* GameScene.swift in Sources */,
 				4A4839E0204F320B0027CD4E /* RoomNode.swift in Sources */,
 				4CAFF17B2253D863003EFC13 /* Rect.swift in Sources */,
-				4A6E42742077E45000F7FBC8 /* TableNode.swift in Sources */,
 				4CDB7D49216A60B60055BA7E /* Button.swift in Sources */,
+				4C63C46F2261EE5C00CF94D3 /* Chair.swift in Sources */,
 				4C1553D6217C9415006598A6 /* lightingTestScene.swift in Sources */,
-				4A6E42722075544B00F7FBC8 /* DoorNode.swift in Sources */,
 				4A4839B3204F30A10027CD4E /* GameViewController.swift in Sources */,
 				4A88D14F206645490003FB13 /* HudNode.swift in Sources */,
-				4CE08197225E6B3200B41864 /* TextureHandler.swift in Sources */,
+				4CC79F8B2268AF9700A84460 /* Table.swift in Sources */,
 				4CDB7D46216A5CCE0055BA7E /* TestScene.swift in Sources */,
+				4C81F5F72268A24B004CE708 /* Door.swift in Sources */,
 				4C1553D4217C9330006598A6 /* CustomViewController.swift in Sources */,
 				4AAB8FF62068425400386924 /* Notes.swift in Sources */,
 				4C1553D8217C9CE8006598A6 /* ShopObj.swift in Sources */,
@@ -420,13 +424,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C907C1D2257CA8C008037E4 /* RoomNode.swift in Sources */,
+				4C81F5F82268A24B004CE708 /* Door.swift in Sources */,
 				4CCB046E2255441B00754DAD /* Object.swift in Sources */,
 				4C907C1B2257CA89008037E4 /* HudNode.swift in Sources */,
 				4CE0819A225E744300B41864 /* GameScene.swift in Sources */,
 				4CAFF17F2253D8A0003EFC13 /* Pos.swift in Sources */,
 				4CF8DC1B225A2E6A00F5A5E9 /* Person.swift in Sources */,
 				4CE081A2225E748700B41864 /* Direction.swift in Sources */,
-				4CE08198225E6B3200B41864 /* TextureHandler.swift in Sources */,
+				4C63C4702261F00700CF94D3 /* Chair.swift in Sources */,
+				4CC79F8C2268AFD300A84460 /* Table.swift in Sources */,
 				4CAFF17C2253D863003EFC13 /* Rect.swift in Sources */,
 				4CE081A7225E7FBA00B41864 /* GameTests.swift in Sources */,
 			);
@@ -437,14 +443,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CE081A8225E7FEF00B41864 /* GameScene.swift in Sources */,
+				4C81F5F92268A24B004CE708 /* Door.swift in Sources */,
 				4C907C1E2257CA8D008037E4 /* RoomNode.swift in Sources */,
 				4C907C1A2257CA81008037E4 /* Pos.swift in Sources */,
 				4C907C1C2257CA8A008037E4 /* HudNode.swift in Sources */,
 				4A4839D1204F30A10027CD4E /* GameUITests.swift in Sources */,
 				4CCB046F2255441E00754DAD /* Object.swift in Sources */,
 				4CE081A3225E748700B41864 /* Direction.swift in Sources */,
+				4C63C4712261F00700CF94D3 /* Chair.swift in Sources */,
+				4CC79F8D2268AFD300A84460 /* Table.swift in Sources */,
 				4CF8DC1C225A2E6B00F5A5E9 /* Person.swift in Sources */,
-				4CE08199225E6B3200B41864 /* TextureHandler.swift in Sources */,
 				4C907C192257CA7F008037E4 /* Rect.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
