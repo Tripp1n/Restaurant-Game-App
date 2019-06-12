@@ -13,13 +13,13 @@ class lightningScene: SKScene {
     private var box : SKRegion!
     private var torch : SKLightNode!
     private var sprite : SKSpriteNode!
-    private var button : Button!
+    private var button : TextButton!
     
     override func didMove(to view: SKView) {
         circle = SKShapeNode(circleOfRadius: 100)
         sprite = SKSpriteNode(imageNamed: "Table")
         
-        button = Button("Hello", color: UIColor.red)
+        button = TextButton("Hello", color: UIColor.red)
         
         addChild(button)
         

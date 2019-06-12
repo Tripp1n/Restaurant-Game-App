@@ -7,38 +7,45 @@
 //
 
 /**
- Describes an rectangle in a grid (that starts at (0,0) in bottomleft),
+ Describes an rectangle (with orgin at the bottom left) in a grid ,
  where row and col describe the position of the bottom left corner of the rectangle
  and width and height how many squares this rect occupies from that position.
  */
-public struct Rect {
-    var col: Int
-    var row: Int
-    var ncol: Int
-    var nrow: Int
+import SpriteKit
+
+public struct Rect: Codable {
+    var col: Int = 0
+    var row: Int = 0
+    var ncol: Int = 1
+    var nrow: Int = 1
+    
     var pos: Pos {
-        get { return Pos(col: col, row: row) }
+        get { return Pos(c: col, r: row) }
         set { col = newValue.col; row = newValue.row }
     }
     var size: (Int, Int) {
         get { return (ncol, nrow) }
         set { ncol = newValue.0; nrow = newValue.1 }
     }
-    
-    var colRange: Range<Int> {
+    var colRng: Range<Int> {
         get {
             return col..<col+ncol
         }
     }
-    var rowRange: Range<Int> {
+    var rowRng: Range<Int> {
         get {
             return row..<row+nrow
         }
     }
     
-    init(c: Int = 0, r: Int = 0, nc: Int = 1, nr: Int = 1) {
-        self.col = c
-        self.row = r
+    init(blc: Int = 0, blr: Int = 0, nc: Int = 1, nr: Int = 1) {
+        //assert(c >= 0, "colum must be positive")
+        //assert(c >= 0, "row must be positive")
+        //assert(c >= 0, "colums must be positive")
+        //assert(c >= 0, "rows must be positive")
+
+        self.col = blc
+        self.row = blr
         self.ncol = nc
         self.nrow = nr
     }
@@ -47,14 +54,65 @@ public struct Rect {
      need to go to get to the rect from that position. If not next to this rect, nil will
      be returned. */
     func isNextTo(pos p: Pos) -> Dir? {
-        if      p.col == col-1    && p.row == row { return .east  }
-        else if p.col == col+ncol && p.row == row { return .west }
-        else if p.row == row-1    && p.col == col { return .north }
-        else if p.row == row+nrow && p.col == col { return .south }
-        else                                      { return nil    }
+             if p.col == col-1    && rowRng.contains(p.row) { return .east  }
+        else if p.col == col+ncol && rowRng.contains(p.row) { return .west  }
+        else if p.row == row-1    && colRng.contains(p.col) { return .north }
+        else if p.row == row+nrow && colRng.contains(p.col) { return .south }
+        else                                                { return nil    }
     }
     
-    func overlaps(rect: Rect) -> Bool {
+    /** Check if other rect is next to this one, and return that cardinal direction or none, if not
+     next to eachother. */
+    func isNextTo(_ other: Rect) -> Dir? {
+        if !self.overlaps(other) {
+            for r in other.rowRng {
+                for c in other.colRng {
+                    if let val = isNextTo(pos: Pos(c: c, r: r)) {
+                        return val
+                    }
+                }
+            }
+        }
+        return nil
+    }
+    
+    func getOverlappingEdges(in p: Pos) -> [Dir?] {
+        var rtnArr: [Dir?] = []
+        if p.col == col        && rowRng.contains(p.row) { rtnArr.append(.west ) }
+        if p.col == col+ncol-1 && rowRng.contains(p.row) { rtnArr.append(.east ) }
+        if p.row == row        && colRng.contains(p.col) { rtnArr.append(.south) }
+        if p.row == row+nrow-1 && colRng.contains(p.col) { rtnArr.append(.north) }
+        return rtnArr
+    }
+    /*
+     r
+     5  ---141--
+     4  777141--
+     3  --2113--
+     2  -55--66-
+     1  -55-----
+     0  --2-----
+     
+     01234567 --> c
+     
+     XCTAssertEqual(rect3.getOverlappingEdges(of: rect1), [.east, .north])
+     */
+    
+    /** Gets the directions in which "self" touches the "other" inner edges. */
+    func getOverlappingEdges(in other: Rect) -> Set<Dir?> {
+        var rtnArr: Set<Dir?> = []
+        for r in rowRng {
+            for c in colRng {
+                let arr = other.getOverlappingEdges(in: Pos(c: c, r: r))
+                if !arr.isEmpty {
+                    rtnArr = rtnArr.union(arr)
+                }
+            }
+        }
+        return rtnArr
+    }
+    
+    func overlaps(_ rect: Rect) -> Bool {
         // For every position in first rectangle
         for x1 in row...row+nrow-1 {
             for y1 in col...col+ncol-1 {
@@ -69,25 +127,24 @@ public struct Rect {
                 }
             }
         }
-        
-        // Else return false
         return false
     }
+    
     func contains(pos: Pos) -> Bool {
         if pos.row >= row && pos.row <= row+nrow-1 && pos.col >= col && pos.col <= col+ncol-1 {
             return true
         }
         return false
     }
-    func contains(rect: Rect) -> Bool {
+    
+    func contains(_ rect: Rect) -> Bool {
 
         // For every position in the other rectangle
-        for row in rect.row...rect.row+rect.ncol-1 {
-            for col in rect.col...rect.col+rect.nrow-1 {
+        for row in rect.rowRng {
+            for col in rect.colRng {
                 
                 // If any positions don't overlap, return false.
-                if !contains(pos: Pos(col: col, row: row)) { return false }
-                
+                if !contains(pos: Pos(c: col, r: row)) { return false }
             }
         }
         return true

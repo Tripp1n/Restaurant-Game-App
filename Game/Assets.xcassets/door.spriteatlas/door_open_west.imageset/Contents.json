@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "door_west_open.png",
+      "filename" : "door_open_west.png",
       "scale" : "1x"
     },
     {

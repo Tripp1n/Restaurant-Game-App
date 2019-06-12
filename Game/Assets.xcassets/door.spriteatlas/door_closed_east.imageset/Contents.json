@@ -2,7 +2,7 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "door_east_closed.png",
+      "filename" : "door_closed_east.png",
       "scale" : "1x"
     },
     {

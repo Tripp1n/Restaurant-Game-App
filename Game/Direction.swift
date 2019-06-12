@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum Dir: Int {
+public enum Dir: Int, Codable {
     case north
     case east
     case south
@@ -16,7 +16,6 @@ public enum Dir: Int {
     
     var description : String {
         switch self {
-        // Use Internationalization, as appropriate.
         case .north:    return "north"
         case .east:     return "east"
         case .south:    return "south"

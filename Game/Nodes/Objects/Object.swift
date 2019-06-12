@@ -7,21 +7,15 @@
 //
 
 import SpriteKit
+import os.log
 
 let gridWidth : CGFloat = 40
 let gridHeight: CGFloat = 20
 
-enum ObjectType {
-    case symetric
-    case semisymetric
-    case direction
-}
-
-public class Object: SKSpriteNode
-{
+public class Object: SKSpriteNode, Codable {
     var rect: Rect          // Position and size of object in room-grid.
     var dir: Dir = .north   // Direction object is facing.
-    var panStart: Pos?      // Nil unless user is moving the object. Represents pos when pan began.
+    var panStart: Pos?      // Wtf is this get that shit away from me. Nil unless user is moving the object. Represents pos when pan began.
     var type: ObjectType    // What type of object is it?
     var pos: Pos {
         get { return rect.pos }
@@ -40,15 +34,26 @@ public class Object: SKSpriteNode
     }
     
     // Create a new Object and move it to the correct spot
-    init(img: SKTexture, rect: Rect, type: ObjectType = .symetric) {
+    init(img: SKTexture, rect: Rect, type: ObjectType = .symetric, anchor: CGPoint? = nil) {
         self.rect = rect
         self.type = type
         img.filteringMode = .nearest
         super.init(texture: img, color: .clear, size: img.size())
         
-        setAnchor()
+        if let a = anchor {
+            anchorPoint = a
+        } else {
+            setAnchor()
+        }
         move(to: pos)
         isUserInteractionEnabled = true
+    }
+    
+    convenience init(named: String, rect: Rect, type: ObjectType, dir: Dir = .north) {
+        let img = Object.getTexture(named: named, type: type, dir: dir)
+        self.init(img: img, rect: rect, type: type)
+        name = named
+        self.dir = dir
     }
     
     private func setAnchor(point: CGPoint? = nil) {
@@ -63,37 +68,21 @@ public class Object: SKSpriteNode
         }
     }
     
-    convenience init(named: String, rect: Rect, type: ObjectType) {
-        let img = Object.getTexture(named: named, type: type)
-        self.init(img: img, rect: rect, type: type)
-        name = named
-    }
-    
-    static private func getTexture(named: String, type: ObjectType, dir: Dir = .north) -> SKTexture{
+    static public func getTexture(named: String, type: ObjectType, dir: Dir = .north) -> SKTexture {
+        let texture: SKTexture
         switch type {
         case .symetric:
-            return SKTexture(imageNamed: named)
-        case .semisymetric:
-            if dir == .east || dir == .north {
-                return SKTexture(imageNamed: "\(named)_east")
-            }
-            else {
-                return SKTexture(imageNamed: "\(named)_west")
-            }
-        case .direction:
-            return SKTexture(imageNamed: "\(named)_\(dir)")
+            texture =  SKTexture(imageNamed: named)
+        case .directional:
+            texture = SKTexture(imageNamed: "\(named)_\(dir)")
         }
-    }
-    required    init?(coder aDecoder: NSCoder) {
-        self.rect = Rect()
-        self.type = .symetric
-
-        super.init(coder: aDecoder)
+        texture.filteringMode = .nearest
+        return texture
     }
     
     // Checks if this object rect is interfering with other rects
     public func isOverlapping(with r: Rect) -> Bool {
-        return rect.overlaps(rect: r)
+        return rect.overlaps(r)
     }
     public func isOverlapping(with obj: Object) -> Bool {
         return isOverlapping(with: obj.rect)
@@ -109,7 +98,7 @@ public class Object: SKSpriteNode
     
     // Checks if this object rect is compleatly inside the other rect
     public func isContained(by r: Rect) -> Bool {
-        return rect.contains(rect: r)
+        return rect.contains(r)
     }
     
     /** Moves this object delta steps from the current position */
@@ -120,7 +109,7 @@ public class Object: SKSpriteNode
             y: pos.row * dist/2 - pos.col * dist/2
         )
         
-        rect.pos = Pos(col: rect.col + pos.col, row: rect.row + pos.row)
+        rect.pos = Pos(c: rect.col + pos.col, r: rect.row + pos.row)
         zPosition += CGFloat(pos.col - pos.row)
         position.x = position.x + offset.x
         position.y = position.y + offset.y
@@ -135,9 +124,10 @@ public class Object: SKSpriteNode
     public func move(to pos: Pos) {
         // Move to (0,0)
         position = CGPoint()
-        position.x = -gridWidth * 4
+        position.x = -gridWidth * CGFloat(RoomNode.roomRect.ncol/2)
+        if RoomNode.roomRect.ncol % 2 == 0 { position.x += gridWidth * 0.5 }
         zPosition = 10
-        self.pos = Pos(col: 0, row: 0)
+        self.pos = Pos(c: 0, r: 0)
         
         // Move to correct position
         move(delta: pos)
@@ -165,19 +155,14 @@ public class Object: SKSpriteNode
                 radiusNode.alpha = 0.5
                 
                 radiusNode.position.x += -gridWidth/2 + CGFloat(col)*gridWidth/2 + CGFloat(row)*gridWidth/2
-                radiusNode.position.y +=  CGFloat(row)*gridHeight/2 + CGFloat(col)*gridHeight/2
+                radiusNode.position.y +=  CGFloat(row)*gridHeight/2 - CGFloat(col)*gridHeight/2
                 
                 addChild(radiusNode)
             }
         }
-        
     }
     public func removeRadius() {
         removeAllChildren()
-    }
-    
-    public func interact(p: Person) {
-        print("\(p.name ?? "person") interacted with \(name ?? "obj")")
     }
     
     public func printObj() {
@@ -188,6 +173,9 @@ public class Object: SKSpriteNode
     public func rotate(to dir: Dir) {
         self.dir = dir
         texture = Object.getTexture(named: name!, type: type, dir: dir)
+        let temp = rect.ncol
+        rect.ncol = rect.nrow
+        rect.nrow = temp
         setAnchor()
         move(to: pos)
     }
@@ -202,28 +190,59 @@ public class Object: SKSpriteNode
         rotate(to: Dir(rawValue: n)!)
     }
     
-    /** Sets the right texture for the current dir. Assumes both texture and dir are correct */
-    private func updateTexture() {
-        let size = texture!.size().width / texture!.textureRect().width
-        let xSquares = Int((size / 20).rounded())
-        let length = rect.ncol >= rect.nrow ? rect.ncol : rect.nrow
-        var imgRect: CGRect = CGRect()
-        
-        switch length+1 {
-        case xSquares/2:
-            let xRatio = Double(dir.rawValue).truncatingRemainder(dividingBy: 2)/4
-            imgRect = CGRect(x: xRatio, y: 0, width: 0.5, height: 1)
-        case xSquares/4:
-            imgRect = CGRect(x: Double(dir.rawValue)/4, y: 0, width: 0.25, height: 1)
-        default:
-            imgRect = CGRect(x: 0, y: 0, width: 1, height: 1)
+    /** Override this if object is not allowed to be placed on certain spots. */
+    public func isPlacementAllowed(room: Rect, objs: [Object]) -> Bool {
+        for obj in objs {
+            if self != obj && obj.rect.overlaps(rect) { return false }
         }
-        
-        texture = SKTexture(rect: imgRect, in: texture!)
+        return true
     }
     
-    /** Override this if object should be placed next to something specific for example. */
-    public func isCorrectlyPlaced(objs: [Object]) -> Bool {
+    /** Override this if object only works if placed next to a specific object for example. */
+    public func isPlacementRecommended(room: Rect, objs: [Object]) -> Bool {
         return true
+    }
+    
+    //MARK: Archiving Paths
+ 
+    static let DocumentsDirectory = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
+    static let ArchiveURL = DocumentsDirectory.appendingPathComponent("objects")
+    
+    
+    
+    // MARK: -- REQUIRED TO MAKE CLASS ENCODABLE --
+    
+    // Used for encoding somehow
+    enum CodingKeys: String, CodingKey {
+        case rect
+        case dir
+        case type
+        case name
+        case person
+    }
+    
+    // Called when encoding
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(rect, forKey: .rect)
+        try container.encode(dir, forKey: .dir)
+        try container.encode(name, forKey: .name)
+        try container.encode(type, forKey: .type)
+    }
+    
+    // Called when decoding
+    required convenience public init(from decoder: Decoder) throws {
+        let container   = try decoder.container(keyedBy: CodingKeys.self)
+        let svdRect     = try? container.decode(Rect.self      , forKey: .rect)
+        let svdDir      = try? container.decode(Dir.self       , forKey: .dir)
+        let svdName     = try? container.decode(String.self    , forKey: .name)
+        let svdType     = try? container.decode(ObjectType.self, forKey: .type)
+        
+        self.init(named: svdName!, rect: svdRect!, type: svdType!, dir: svdDir!)
+    }
+    
+    // MARK: -- REQUIRED BUT UNUSED --
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("Not implemented")
     }
 }

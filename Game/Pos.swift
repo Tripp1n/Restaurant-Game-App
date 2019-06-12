@@ -8,13 +8,13 @@
 
 import Foundation
 
-public struct Pos {
+public struct Pos: Codable {
     var col: Int
     var row: Int
     
-    init(col: Int = 0, row: Int = 0) {
-        self.col = col
-        self.row = row
+    init(c: Int = 0, r: Int = 0) {
+        self.col = c
+        self.row = r
     }
     
     static func == (lhs: Pos, rhs: Pos) -> Bool {
@@ -26,7 +26,7 @@ public struct Pos {
     }
     
     static func + (lhs: Pos, rhs: Pos) -> Pos {
-        return Pos(col: lhs.col + rhs.col, row: lhs.row + rhs.row)
+        return Pos(c: lhs.col + rhs.col, r: lhs.row + rhs.row)
     }
     
     static func += (left: inout Pos, right: Pos) {
@@ -34,10 +34,10 @@ public struct Pos {
     }
     
     static func - (lhs: Pos, rhs: Pos) -> Pos {
-        return Pos(col: lhs.col - rhs.col, row: lhs.row - rhs.row)
+        return Pos(c: lhs.col - rhs.col, r: lhs.row - rhs.row)
     }
     
     public func toRect(width: Int = 1, height: Int = 1) -> Rect {
-        return Rect(c: col, r: row, nc: width, nr: height)
+        return Rect(blc: col, blr: row, nc: width, nr: height)
     }
 }

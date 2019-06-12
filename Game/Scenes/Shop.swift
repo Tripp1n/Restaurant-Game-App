@@ -11,7 +11,7 @@ import SpriteKit
 class ShopScene: SKScene {
     
     let hudNode = HudNode()
-    var scrollView: SwiftySKScrollView!
+    var scrollView: UIView!
     let moveableNode = SKNode()
     let label1 = SKLabelNode(text: "SHOP")
     
@@ -20,7 +20,7 @@ class ShopScene: SKScene {
         label1.position.y = self.frame.maxY - label1.frame.height - 10
         label1.position.x = self.frame.midX
         
-        hudNode.setup(size: size)
+        hudNode.setup(size: size, room: RoomNode())
         hudNode.ShopMode()
         
         for index in 0..<gameScene.shopObjs.count
@@ -72,11 +72,11 @@ class ShopScene: SKScene {
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.tap(tap:)))
         self.view!.addGestureRecognizer(tapRecognizer)
         
-        scrollView = SwiftySKScrollView(
+        /*scrollView = SwiftySKScrollView(
             frame: CGRect(x: 0, y: 0, width: self.frame.size.width, height: self.frame.size.height),
             moveableNode: moveableNode,
-            direction: SwiftySKScrollView.ScrollDirection.vertical)
-        scrollView.contentSize = CGSize(width: self.frame.size.width, height: self.frame.size.height * 2)
+            direction: SwiftySKScrollView.ScrollDirection.vertical)*/
+        //scrollView.contentSize = CGSize(width: self.frame.size.width, height: self.frame.size.height * 2)
         
         view?.addSubview(scrollView)
         addChild(hudNode)
