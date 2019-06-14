@@ -7,7 +7,6 @@
 //
 
 import SpriteKit
-import os.log
 
 let gridWidth : CGFloat = 40
 let gridHeight: CGFloat = 20
@@ -34,38 +33,44 @@ public class Object: SKSpriteNode, Codable {
     }
     
     // Create a new Object and move it to the correct spot
-    init(img: SKTexture, rect: Rect, type: ObjectType = .symetric, anchor: CGPoint? = nil) {
+    init(img: SKTexture, rect: Rect, type: ObjectType = .symetric, isInteractable: Bool = false) {
         self.rect = rect
         self.type = type
         img.filteringMode = .nearest
+        
         super.init(texture: img, color: .clear, size: img.size())
         
-        if let a = anchor {
-            anchorPoint = a
-        } else {
-            setAnchor()
-        }
+        setAnchor()
         move(to: pos)
-        isUserInteractionEnabled = true
+        
+        
+        let debug = SKShapeNode(rectOf: CGSize(width: 2, height: 2))
+        debug.fillColor = .red
+        debug.strokeColor = .red
+        debug.glowWidth = 0
+        debug.zPosition = 0.1
+        addChild(debug)
+        
+        isUserInteractionEnabled = isInteractable
     }
     
     convenience init(named: String, rect: Rect, type: ObjectType, dir: Dir = .north) {
         let img = Object.getTexture(named: named, type: type, dir: dir)
-        self.init(img: img, rect: rect, type: type)
+        self.init(img: img, rect: rect, type: type, isInteractable: true)
         name = named
         self.dir = dir
     }
     
-    private func setAnchor(point: CGPoint? = nil) {
-        if let point = point {
-            anchorPoint = point
-        } else {
-            let size = texture!.size()
-            anchorPoint = CGPoint(
-                x: gridWidth / size.width,
-                y: (CGFloat(rect.ncol) * (gridHeight)) / (2 * size.height)
-            )
-        }
+    func setAnchor() {
+        let size = texture!.size()
+        
+        var n = CGFloat(rect.ncol - rect.nrow)
+        if n < 1 { n = 1 }
+        let a = CGPoint(
+            x: 1/CGFloat(rect.nrow+1),
+            y: (gridHeight/2)*n / size.height
+        )
+        anchorPoint = a
     }
     
     static public func getTexture(named: String, type: ObjectType, dir: Dir = .north) -> SKTexture {
@@ -105,7 +110,7 @@ public class Object: SKSpriteNode, Codable {
     public func move(delta pos: Pos) {
         let dist = Int(gridHeight)
         let offset = CGPoint(
-            x: pos.col * dist + pos.row * dist + dist,
+            x: pos.col*dist + pos.row*dist, // TODO: REMOVE + dist and readjust grid
             y: pos.row * dist/2 - pos.col * dist/2
         )
         
@@ -113,7 +118,6 @@ public class Object: SKSpriteNode, Codable {
         zPosition += CGFloat(pos.col - pos.row)
         position.x = position.x + offset.x
         position.y = position.y + offset.y
-        
         printObj()
     }
     
@@ -122,10 +126,8 @@ public class Object: SKSpriteNode, Codable {
      in the object texture, then calls move(delta:) to move it to the correct position.
      */
     public func move(to pos: Pos) {
-        // Move to (0,0)
+        // Move to (0,0) and reset obj
         position = CGPoint()
-        position.x = -gridWidth * CGFloat(RoomNode.roomRect.ncol/2)
-        if RoomNode.roomRect.ncol % 2 == 0 { position.x += gridWidth * 0.5 }
         zPosition = 10
         self.pos = Pos(c: 0, r: 0)
         
@@ -151,11 +153,11 @@ public class Object: SKSpriteNode, Codable {
                 radiusNode.fillColor = c
                 radiusNode.lineWidth = 1
                 radiusNode.strokeColor = c
-                radiusNode.zPosition = -1       // Based on current nodes z pos i think, this makes sure its always lower
+                radiusNode.zPosition = -0.01    // Based on current nodes z pos i think, this makes sure its always lower
                 radiusNode.alpha = 0.5
                 
-                radiusNode.position.x += -gridWidth/2 + CGFloat(col)*gridWidth/2 + CGFloat(row)*gridWidth/2
-                radiusNode.position.y +=  CGFloat(row)*gridHeight/2 - CGFloat(col)*gridHeight/2
+                radiusNode.position.x += CGFloat(col)*gridWidth/2 + CGFloat(row)*gridWidth/2
+                radiusNode.position.y += CGFloat(row)*gridHeight/2 - CGFloat(col)*gridHeight/2
                 
                 addChild(radiusNode)
             }

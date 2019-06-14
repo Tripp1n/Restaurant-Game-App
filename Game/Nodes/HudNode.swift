@@ -11,8 +11,10 @@ import SpriteKit
 class HudNode: SKNode {
     var roomNode: RoomNode!
     
-    let infoBar = SKNode()
-    let settingBar = SKNode()
+    let infoNode = SKNode()
+    let settingsNode = SKNode()
+    let inventoryNode = SKNode()
+    
     let lblmoney = SKLabelNode(fontNamed: "Menlo-Bold")
     let lbldebt = SKLabelNode(fontNamed: "Menlo-Bold")
     let topBar = SKShapeNode()
@@ -23,8 +25,6 @@ class HudNode: SKNode {
     var rotateIcon: SKSpriteNode!
     var shopIcon: SKSpriteNode!
     
-    public var inventoryNode: SKSpriteNode = SKSpriteNode()
-
     public func setMoney(_ money: Int) {
         lblmoney.text = "Current money: \(money) $"
     }
@@ -36,6 +36,7 @@ class HudNode: SKNode {
     public func setup(size: CGSize, room: RoomNode) {
         roomNode = room
         
+        // -- Info bar --
         let topBar = SKShapeNode(rect: CGRect(x: 0, y: Int(size.height), width: Int(size.width), height: -40))
         topBar.fillColor = .lightGray
         topBar.strokeColor = .white
@@ -43,30 +44,7 @@ class HudNode: SKNode {
         let moneyBox = SKShapeNode(rect: CGRect(x: Int(size.width/3), y: Int(size.height+10-60), width: Int(size.width/3), height: 70), cornerRadius: 10)
         moneyBox.strokeColor = .white
         moneyBox.fillColor = .darkGray
-        moneyBox.addChild(lblmoney)
-        moneyBox.addChild(lbldebt)
         
-        infoBar.addChild(topBar)
-        infoBar.addChild(moneyBox)
-        
-        let setting = IconButton(
-            onTexture: "settings", offTexture: "settings", onClickOn: {}, onClickOff: {})
-        let sound = IconButton(onTexture: "volume_on", offTexture: "volume_off", onClickOn: { room.soundOff() }, onClickOff: { room.soundOn() })
-        let grid = IconButton(onTexture: "grid_on", offTexture: "grid_off", onClickOn: { room.hideGrid() }, onClickOff: { room.showGrid() })
-        
-        setting.anchorPoint = CGPoint(x: 0, y: 1)
-        setting.position = CGPoint(x: 10, y: size.height - 60)
-        sound.anchorPoint = CGPoint(x: 0, y: 1)
-        sound.position = CGPoint(x: 10, y: size.height - 100)
-        grid.anchorPoint = CGPoint(x: 0, y: 1)
-        grid.position = CGPoint(x: 10, y: size.height - 140)
-        
-        settingBar.addChild(setting)
-        settingBar.addChild(sound)
-        settingBar.addChild(grid)
-
-
-
         lblmoney.fontSize = 16
         lblmoney.position = CGPoint(x: size.width / 2, y: size.height - 20)
         lblmoney.zPosition = 1
@@ -80,6 +58,60 @@ class HudNode: SKNode {
         setMoney(400)
         setDebt(29)
         
+        moneyBox.addChild(lblmoney)
+        moneyBox.addChild(lbldebt)
+        
+        infoNode.addChild(topBar)
+        infoNode.addChild(moneyBox)
+        
+        
+        // -- Setting column on left hand side --
+        let setting = IconButton(onTexture: "settings", offTexture: "settings", isOn: true,
+                                 onClickOn: {}, onClickOff: {})
+        let sound   = IconButton(onTexture: "volume_on", offTexture: "volume_off", isOn: true,
+                                 onClickOn: {
+                                    room.audio.run(.pause())},
+                                 onClickOff: {
+                                    room.audio.run(.play())})
+        let grid   = IconButton(onTexture: "grid_on", offTexture: "grid_off", isOn: false,
+                                onClickOn: {
+                                    room.hideGrid()},
+                                onClickOff: {
+                                    room.showGrid()})
+        setting.anchorPoint = CGPoint(x: 0, y: 1)
+        setting.position = CGPoint(x: 10, y: size.height - 60)
+        sound.anchorPoint = CGPoint(x: 0, y: 1)
+        sound.position = CGPoint(x: 10, y: size.height - 100)
+        grid.anchorPoint = CGPoint(x: 0, y: 1)
+        grid.position = CGPoint(x: 10, y: size.height - 140)
+        
+        settingsNode.addChild(setting)
+        settingsNode.addChild(sound)
+        settingsNode.addChild(grid)
+
+        // -- Inventory Node --
+        let obj  = Object(named: "chair", rect: Rect(), type: .directional)
+        let obj2 = Object(named: "chair", rect: Rect(), type: .directional)
+
+        
+        ///let tag = TextButton("Inventory", onClick: {})
+        //tag.position = CGPoint(x: size.width/2, y: size.height/2)
+        
+        let objCon = ObjectContainer(obj: obj, backColor: .lightGray,
+                                     size: CGSize(width: size.width/6, height: size.width/6))
+        objCon.position = CGPoint(x: size.width/2, y: size.height/2)
+        
+        let display = ObjectDisplayer(obj: obj2, price: 100, count: 2,
+                                      size: CGSize(width: size.width/5, height:size.width/5), onButtonClick: {})
+        display.position = CGPoint(x: size.width/2, y: size.height/2)
+
+
+        
+        //inventoryNode.addChild(tag)
+        //inventoryNode.addChild(objCon)
+        inventoryNode.addChild(display)
+        
+        
         // Icons
         appendIcon = prepIcon(name: "add",    size: size)
         shopIcon   = prepIcon(name: "shop",   size: size)
@@ -90,23 +122,6 @@ class HudNode: SKNode {
         cancelIcon.anchorPoint = CGPoint(x: 0, y: 1)
         cancelIcon.position = CGPoint(x: 10 , y: size.height - 50)
         rotateIcon.position = CGPoint(x: size.width - (20 + submitIcon.frame.width), y: size.height - 50)
-        
-        // Inventory
-        inventoryNode = SKSpriteNode(color: .darkGray, size: CGSize(width: size.width, height: size.height/4))
-        let n = inventoryNode
-        n.anchorPoint = CGPoint(x: 0, y: 0)
-        n.position = CGPoint(x: 0, y: 0)
-        n.isUserInteractionEnabled = false
-        
-        inventoryLabel.color = .lightText
-        inventoryLabel.fontName = "AvenirNext-Bold"
-        inventoryLabel.fontSize = 20
-        inventoryLabel.horizontalAlignmentMode = .left
-        inventoryLabel.position = CGPoint(x: 10, y: size.height/4 - 20)
-        inventoryLabel.zPosition = 1
-        inventoryNode.addChild(inventoryLabel)
-                
-        addChild(appendIcon)
         
         NormalMode()
     }
@@ -134,19 +149,20 @@ class HudNode: SKNode {
     
     public func NormalMode() {
         removeAllChildren()
-        addChild(infoBar)
-        addChild(settingBar)
+        addChild(infoNode)
+        addChild(settingsNode)
+        //addChild(inventoryNode)
     }
     
     public func ShopMode() {
         removeAllChildren()
-        addChild(infoBar)
+        addChild(infoNode)
         addChild(cancelIcon)
     }
     
     public func InventoryMode() {
         removeAllChildren()
-        addChild(infoBar)
+        addChild(infoNode)
 
         addChild(cancelIcon)
         addChild(shopIcon)
@@ -184,7 +200,7 @@ class HudNode: SKNode {
     
     public func editMode() {
         removeAllChildren()
-        addChild(infoBar)
+        addChild(infoNode)
 
         addChild(submitIcon)
         addChild(cancelIcon)

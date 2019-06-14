@@ -12,7 +12,7 @@ public class RoomNode : SKNode
 {
     private let spawnRate = 10 // spawns one guest every x seconds
     var objects: [Object] = []
-    public static var roomRect = Rect(blc: 0, blr: 0, nc: 5, nr: 3)
+    public var roomRect = Rect(blc: 0, blr: 0, nc: 5, nr: 3)
                // All placed objects in the room
     private var guests = [Person]()     // All people in the room
     private var currObj: Object?        // ref to an object in objects
@@ -24,8 +24,32 @@ public class RoomNode : SKNode
     private let grid: SKNode = SKNode()
     private let moveAudio: SKAudioNode = SKAudioNode(fileNamed: "click")
     
-    public func setup() {
+    var audio: SKAudioNode = SKAudioNode(fileNamed: "Welcome")
+    
+    public func setup(roomRect: Rect? = nil, floorTextureName: String = "floorDark") {
+        addChild(audio)
         
+        if let rect = roomRect { self.roomRect = rect}
+        
+        let debug = SKShapeNode(rectOf: CGSize(width: 2, height: 2))
+        debug.fillColor = .green
+        debug.strokeColor = .green
+        debug.glowWidth = 0
+        debug.zPosition = 100
+        addChild(debug)
+        
+        // Variables?
+        let ncol = self.roomRect.ncol
+        let nrow = self.roomRect.nrow
+        xScale = 2
+        yScale = 2
+        position.x = parent!.frame.midX
+        position.y = parent!.frame.midY
+        moveAudio.autoplayLooped = false
+        addChild(moveAudio)
+        let floorSize = Int(gridWidth)*ncol
+        
+        // Load and display objects from memory
         if let objs = load() {
             for object in objs {
                 var obj = object
@@ -44,73 +68,17 @@ public class RoomNode : SKNode
             }
         }
         
-        let ncol = RoomNode.roomRect.ncol
-        let nrow = RoomNode.roomRect.nrow
-        xScale = 2
-        yScale = 2
-        
-        position.x = parent!.frame.midX
-        position.y = parent!.frame.midY
-        
-        moveAudio.autoplayLooped = false
-        addChild(moveAudio)
-        
-        let floorSize = Int(gridWidth)*ncol
-        
-        // add textures to ground
+        // Add textures to ground
+        let floorTexture = SKTexture(imageNamed: floorTextureName)
         for X in 0..<ncol {
             for Y in 0..<nrow {
-                let floorTexture = SKTexture(imageNamed: "floorDark")
-                floorTexture.filteringMode = SKTextureFilteringMode.nearest
-                let floorTileNode = SKSpriteNode(texture: floorTexture)
-                let size: Int = Int(floorTileNode.size.height)
-                let sizeHalf: Int = Int(floorTileNode.size.height/2)
-                
-                let x: CGFloat =  CGFloat(size*(X+Y) - floorSize/2)
-                let y: CGFloat = CGFloat(sizeHalf*(Y-X))
-                floorTileNode.position = CGPoint(x: x+CGFloat(size), y: y)
-                floorTileNode.zPosition = -1
-                addChild(floorTileNode)
+                let floorSquare = Object(img: floorTexture, rect: Rect(blc: X, blr: Y))
+                floorSquare.zPosition = -1
+                addChild(floorSquare)
             }
         }
-        /*
-         // add textures to wall
-         for n in 0..<ncol {
-         let wallTextureLeft = SKTexture(rect: CGRect(
-         origin: CGPoint(x: 0, y: 0),
-         size: CGSize(width: 0.5, height: 1.0)
-         ), in: SKTexture(imageNamed: "wallBlackStone"))
-         wallTextureLeft.filteringMode = SKTextureFilteringMode.nearest
-         let wallTextureRight = SKTexture(rect: CGRect(
-         origin: CGPoint(x: 0.5, y: 0),
-         size: CGSize(width: 0.5, height: 1.0)
-         ), in: SKTexture(imageNamed: "wallBlackStone"))
-         wallTextureRight.filteringMode = SKTextureFilteringMode.nearest
-         
-         for n2 in 0..<2 {
-         let wallNodeWest = SKSpriteNode(texture: wallTextureLeft)
-         let wallNodeNorth = SKSpriteNode(texture: wallTextureRight)
-         
-         let heigth: Int = Int((wallNodeWest.size.height*3/4 - 1) * CGFloat(n2))
-         let whSize: CGFloat = wallNodeWest.size.width/2
-         let size: CGFloat = wallNodeWest.size.width/4
-         
-         wallNodeWest.position = CGPoint(
-         x: whSize - CGFloat(floorSize/2) + CGFloat(n*20),
-         y: whSize + CGFloat(n*10) + size + CGFloat(heigth)
-         )
-         addChild(wallNodeWest)
-         
-         
-         wallNodeNorth.position = CGPoint(
-         x: whSize + CGFloat(n*20),
-         y: whSize + CGFloat((nrow-n)*10) - size + 1 + CGFloat(heigth)
-         )
-         addChild(wallNodeNorth)
-         }
-         }*/
         
-        // add grid
+        // Add the grid
         grid.alpha = 0
         addChild(grid)
         
@@ -120,8 +88,8 @@ public class RoomNode : SKNode
         for i in 0...Int(ncol) {
             let path4 = CGMutablePath()
             // Move to edge of diamond shape
-            path4.move(to: CGPoint(x: -floorSize/2 + offsetX*i, y: 0 - offsetY*i))
-            path4.addLine(to: CGPoint(x: offsetX*i + offsetX*(nrow-ncol),
+            path4.move(to: CGPoint(x: offsetX*(i-1), y: -offsetY*i))
+            path4.addLine(to: CGPoint(x: offsetX*(i-1) + offsetX*(nrow-ncol) + floorSize/2,
                                       y: floorSize/4 - offsetY*i + offsetY*(nrow-ncol)))
             let lineNode = SKShapeNode(path: path4)
             lineNode.strokeColor = .white
@@ -133,8 +101,8 @@ public class RoomNode : SKNode
         
         for i in 0...Int(nrow) {
             let path5 = CGMutablePath()
-            path5.move(to: CGPoint(x: -floorSize/2 + offsetX*i, y: 0 + offsetY*i)) // Move to edge of diamond shape
-            path5.addLine(to: CGPoint(x: 0 + offsetX*i, y: -floorSize/4 + offsetY*i))
+            path5.move(to: CGPoint(x: offsetX*(i-1), y: offsetY*i)) // Move to edge of diamond shape
+            path5.addLine(to: CGPoint(x: offsetX*(i-1) + floorSize/2, y: -floorSize/4 + offsetY*i))
             let lineNode2 = SKShapeNode(path: path5)
             lineNode2.strokeColor = .white
             lineNode2.zPosition = 1
@@ -144,7 +112,7 @@ public class RoomNode : SKNode
         }
         
         // Create a function that is repetedly called every second
-        _ = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
+         _ = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.update), userInfo: nil, repeats: true)
     }
     
     /** Add an object to the room. This will both add and display the object. */
@@ -152,12 +120,12 @@ public class RoomNode : SKNode
         objects.append(obj)
         addChild(obj)
         update()
+        save()
     }
     
     public func spawnPerson(at door: Door) {
-        let prs = Person(walkCycleNamed: "guest1", pos: door.pos)
+        let prs = Person(walkCycleNamed: "guest1", door: door)
         prs.alpha = 0
-        prs.zPosition = door.zPosition+0.1
         
         addChild(prs)
         guests.append(prs)
@@ -180,13 +148,13 @@ public class RoomNode : SKNode
     @objc private func update() {
         let doors = objects.filter({
             if let obj = $0 as? Door {
-                let val = obj.isPlacementAllowed(room: RoomNode.roomRect, objs: objects)
+                let val = obj.isPlacementAllowed(room: roomRect, objs: objects)
                 return val
             }
             return false
         })
         let chairs = objects.filter({
-            $0 is Chair && $0.isPlacementRecommended(room: RoomNode.roomRect, objs: objects)
+            $0 is Chair && $0.isPlacementRecommended(room: roomRect, objs: objects)
         })
         var emptyChairs = chairs.filter({
             for guest in guests.filter({$0.goal != nil}) {
@@ -200,13 +168,15 @@ public class RoomNode : SKNode
             switch guest.desire {
             case .sit:
                 if !emptyChairs.isEmpty {
-                    guest.walk(to: emptyChairs.removeFirst(), avoid: objects, room: RoomNode.roomRect)
+                    let doorZ = doors.first!.zPosition
+                    let guestZ = guest.zPosition
+                    guest.walk(to: emptyChairs.removeFirst(), avoid: objects, room: roomRect)
                 } else {
                     guest.desire = .leave
                 }
             case .leave:
                 if !doors.isEmpty {
-                    guest.walk(to: doors.randomElement()!, avoid: objects, room: RoomNode.roomRect)
+                    guest.walk(to: doors.randomElement()!, avoid: objects, room: roomRect)
                 }
             case .vanish:
                 guests.removeAll(where: {$0 == guest})
@@ -291,15 +261,15 @@ public class RoomNode : SKNode
     }
     
     public func rotateRoomRight() {
-        let rows = RoomNode.roomRect.nrow
-        RoomNode.roomRect.nrow = RoomNode.roomRect.ncol
-        RoomNode.roomRect.ncol = rows
+        let rows = roomRect.nrow
+        roomRect.nrow = roomRect.ncol
+        roomRect.ncol = rows
     }
     
     public func rotateRoomLeft() {
-        let rows = RoomNode.roomRect.nrow
-        RoomNode.roomRect.nrow = RoomNode.roomRect.ncol
-        RoomNode.roomRect.ncol = rows
+        let rows = roomRect.nrow
+        roomRect.nrow = roomRect.ncol
+        roomRect.ncol = rows
     }
     
     public func rotateCurrent() {
@@ -311,9 +281,9 @@ public class RoomNode : SKNode
     
     /** Calculate the position color */
     private func posColor(_ obj: Object) -> SKColor {
-        if (!obj.isPlacementAllowed(room: RoomNode.roomRect, objs: objects)) {
+        if (!obj.isPlacementAllowed(room: roomRect, objs: objects)) {
             return .red
-        } else if (!obj.isPlacementRecommended(room: RoomNode.roomRect, objs: objects)) {
+        } else if (!obj.isPlacementRecommended(room: roomRect, objs: objects)) {
             return .yellow
         } else {
             return .green
@@ -322,17 +292,17 @@ public class RoomNode : SKNode
     
     /** Checks if this rect is valid to place or display an object at. */
     public func isValid(_ obj: Object) -> Bool {
-        return isInside(at: obj.rect) && obj.isPlacementAllowed(room: RoomNode.roomRect, objs: objects)
+        return isInside(at: obj.rect) && obj.isPlacementAllowed(room: roomRect, objs: objects)
     }
     
     /** Checks if this rect is a valid place to display the object at. */
     public func isInside(at rect: Rect) -> Bool {
-        return RoomNode.roomRect.contains(rect)
+        return roomRect.contains(rect)
     }
     
     /// Check if given rect is touching the edge of the room.
     private func isAtEdge(r: Rect) -> Bool {
-        return !r.getOverlappingEdges(in: RoomNode.roomRect).isEmpty
+        return !r.getOverlappingEdges(in: roomRect).isEmpty
     }
     
     /** Gets object at a certain position. Not being used atm. */
@@ -399,3 +369,40 @@ public class RoomNode : SKNode
         }
     }
 }
+
+/*
+ // add textures to wall
+ for n in 0..<ncol {
+ let wallTextureLeft = SKTexture(rect: CGRect(
+ origin: CGPoint(x: 0, y: 0),
+ size: CGSize(width: 0.5, height: 1.0)
+ ), in: SKTexture(imageNamed: "wallBlackStone"))
+ wallTextureLeft.filteringMode = SKTextureFilteringMode.nearest
+ let wallTextureRight = SKTexture(rect: CGRect(
+ origin: CGPoint(x: 0.5, y: 0),
+ size: CGSize(width: 0.5, height: 1.0)
+ ), in: SKTexture(imageNamed: "wallBlackStone"))
+ wallTextureRight.filteringMode = SKTextureFilteringMode.nearest
+ 
+ for n2 in 0..<2 {
+ let wallNodeWest = SKSpriteNode(texture: wallTextureLeft)
+ let wallNodeNorth = SKSpriteNode(texture: wallTextureRight)
+ 
+ let heigth: Int = Int((wallNodeWest.size.height*3/4 - 1) * CGFloat(n2))
+ let whSize: CGFloat = wallNodeWest.size.width/2
+ let size: CGFloat = wallNodeWest.size.width/4
+ 
+ wallNodeWest.position = CGPoint(
+ x: whSize - CGFloat(floorSize/2) + CGFloat(n*20),
+ y: whSize + CGFloat(n*10) + size + CGFloat(heigth)
+ )
+ addChild(wallNodeWest)
+ 
+ 
+ wallNodeNorth.position = CGPoint(
+ x: whSize + CGFloat(n*20),
+ y: whSize + CGFloat((nrow-n)*10) - size + 1 + CGFloat(heigth)
+ )
+ addChild(wallNodeNorth)
+ }
+ }*/

@@ -9,5 +9,5 @@
 import Foundation
 
 class Table: Object {
-    
+    let hi = "boi"
 }

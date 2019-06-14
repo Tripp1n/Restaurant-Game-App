@@ -64,11 +64,23 @@
 		4CC79F8D2268AFD300A84460 /* Table.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CC79F8A2268AF9700A84460 /* Table.swift */; };
 		4CCB046E2255441B00754DAD /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839E5205C10220027CD4E /* Object.swift */; };
 		4CCB046F2255441E00754DAD /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839E5205C10220027CD4E /* Object.swift */; };
+		4CD58E9C22B175A4003259D5 /* ObjectContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD58E9B22B175A4003259D5 /* ObjectContainer.swift */; };
+		4CD58E9D22B17949003259D5 /* ObjectContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD58E9B22B175A4003259D5 /* ObjectContainer.swift */; };
+		4CD58E9E22B17949003259D5 /* ObjectContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD58E9B22B175A4003259D5 /* ObjectContainer.swift */; };
+		4CD58EA022B18824003259D5 /* ObjectDisplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD58E9F22B18824003259D5 /* ObjectDisplayer.swift */; };
+		4CD58EA122B189D4003259D5 /* ObjectDisplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD58E9F22B18824003259D5 /* ObjectDisplayer.swift */; };
+		4CD58EA222B189D4003259D5 /* ObjectDisplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD58E9F22B18824003259D5 /* ObjectDisplayer.swift */; };
+		4CD58EA422B18A37003259D5 /* Shop.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CD58EA322B18A37003259D5 /* Shop.xib */; };
+		4CD58EA522B18A37003259D5 /* Shop.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CD58EA322B18A37003259D5 /* Shop.xib */; };
+		4CD58EA622B18A37003259D5 /* Shop.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4CD58EA322B18A37003259D5 /* Shop.xib */; };
 		4CDB7D46216A5CCE0055BA7E /* TestScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CDB7D45216A5CCE0055BA7E /* TestScene.swift */; };
 		4CE081A1225E748700B41864 /* Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE081A0225E748700B41864 /* Direction.swift */; };
 		4CE081A2225E748700B41864 /* Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE081A0225E748700B41864 /* Direction.swift */; };
 		4CE081A3225E748700B41864 /* Direction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE081A0225E748700B41864 /* Direction.swift */; };
 		4CE081A7225E7FBA00B41864 /* GameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4839C5204F30A10027CD4E /* GameTests.swift */; };
+		4CE43ED622B24F160098599E /* ListContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE43ED522B24F160098599E /* ListContainer.swift */; };
+		4CE43ED722B24F160098599E /* ListContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE43ED522B24F160098599E /* ListContainer.swift */; };
+		4CE43ED822B24F160098599E /* ListContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CE43ED522B24F160098599E /* ListContainer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,8 +135,13 @@
 		4CAFF17A2253D863003EFC13 /* Rect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Rect.swift; path = ../Rect.swift; sourceTree = "<group>"; };
 		4CAFF17D2253D8A0003EFC13 /* Pos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Pos.swift; path = ../Pos.swift; sourceTree = "<group>"; };
 		4CC79F8A2268AF9700A84460 /* Table.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Table.swift; path = ../Table.swift; sourceTree = "<group>"; };
+		4CD58E9B22B175A4003259D5 /* ObjectContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectContainer.swift; sourceTree = "<group>"; };
+		4CD58E9F22B18824003259D5 /* ObjectDisplayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectDisplayer.swift; sourceTree = "<group>"; };
+		4CD58EA322B18A37003259D5 /* Shop.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Shop.xib; sourceTree = "<group>"; };
 		4CDB7D45216A5CCE0055BA7E /* TestScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestScene.swift; sourceTree = "<group>"; };
 		4CE081A0225E748700B41864 /* Direction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Direction.swift; path = ../Direction.swift; sourceTree = "<group>"; };
+		4CE43ED522B24F160098599E /* ListContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContainer.swift; sourceTree = "<group>"; };
+		4CF102D922B3F505000DBEBA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +192,7 @@
 		4A4839A9204F30A10027CD4E /* Game */ = {
 			isa = PBXGroup;
 			children = (
+				4CF102D922B3F505000DBEBA /* README.md */,
 				4A4839E120591FA30027CD4E /* Scenes */,
 				4C12F3A3226B4F2D005BFB0A /* Node s */,
 				4C12F3A2226B4EF4005BFB0A /* Objects */,
@@ -189,6 +207,7 @@
 				4A4839BC204F30A10027CD4E /* Info.plist */,
 				4AAB8FF52068425400386924 /* Notes.swift */,
 				4A6E4275207DEB9D00F7FBC8 /* Future Features.rtf */,
+				4CD58EA322B18A37003259D5 /* Shop.xib */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -251,8 +270,6 @@
 				4CAFF17D2253D8A0003EFC13 /* Pos.swift */,
 				4CE081A0225E748700B41864 /* Direction.swift */,
 				4CAFB4C922AD4376007D4957 /* ObjectType.swift */,
-				4CAFB4D122B12DEB007D4957 /* Button.swift */,
-				4CAFB4D522B12E91007D4957 /* IconButton.swift */,
 			);
 			name = Structs;
 			path = Game/Structs;
@@ -270,7 +287,12 @@
 		4CDB7D47216A609A0055BA7E /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				4CAFB4D122B12DEB007D4957 /* Button.swift */,
+				4CAFB4D522B12E91007D4957 /* IconButton.swift */,
 				4CAFB4D922B1350E007D4957 /* TextButton.swift */,
+				4CD58E9B22B175A4003259D5 /* ObjectContainer.swift */,
+				4CD58E9F22B18824003259D5 /* ObjectDisplayer.swift */,
+				4CE43ED522B24F160098599E /* ListContainer.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -385,6 +407,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4CD58EA422B18A37003259D5 /* Shop.xib in Resources */,
 				4A4839B6204F30A10027CD4E /* Main.storyboard in Resources */,
 				4C907C2D2258F87D008037E4 /* click.wav in Resources */,
 				4CAFB4E222B13BBC007D4957 /* Assets.xcassets in Resources */,
@@ -399,6 +422,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CAFB4E322B13BBC007D4957 /* Assets.xcassets in Resources */,
+				4CD58EA522B18A37003259D5 /* Shop.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -407,6 +431,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CAFB4E422B13BBC007D4957 /* Assets.xcassets in Resources */,
+				4CD58EA622B18A37003259D5 /* Shop.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -424,11 +449,13 @@
 				4A4839B1204F30A10027CD4E /* Restaurant.swift in Sources */,
 				4A4839E0204F320B0027CD4E /* RoomNode.swift in Sources */,
 				4C12F39F226B4EDD005BFB0A /* Person.swift in Sources */,
+				4CE43ED622B24F160098599E /* ListContainer.swift in Sources */,
 				4CAFF17B2253D863003EFC13 /* Rect.swift in Sources */,
 				4CAFB4D222B12DEB007D4957 /* Button.swift in Sources */,
 				4CAFB4D622B12E91007D4957 /* IconButton.swift in Sources */,
 				4C63C46F2261EE5C00CF94D3 /* Chair.swift in Sources */,
 				4C1553D6217C9415006598A6 /* lightingTestScene.swift in Sources */,
+				4CD58EA022B18824003259D5 /* ObjectDisplayer.swift in Sources */,
 				4A4839B3204F30A10027CD4E /* GameViewController.swift in Sources */,
 				4A88D14F206645490003FB13 /* HudNode.swift in Sources */,
 				4CC79F8B2268AF9700A84460 /* Table.swift in Sources */,
@@ -439,6 +466,7 @@
 				4C12F39B226B432E005BFB0A /* Interactable.swift in Sources */,
 				4A4839E6205C10220027CD4E /* Object.swift in Sources */,
 				4A4839AB204F30A10027CD4E /* AppDelegate.swift in Sources */,
+				4CD58E9C22B175A4003259D5 /* ObjectContainer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -458,9 +486,12 @@
 				4C63C4702261F00700CF94D3 /* Chair.swift in Sources */,
 				4CC79F8C2268AFD300A84460 /* Table.swift in Sources */,
 				4CAFF17C2253D863003EFC13 /* Rect.swift in Sources */,
+				4CD58EA122B189D4003259D5 /* ObjectDisplayer.swift in Sources */,
 				4CAFB4DB22B1350E007D4957 /* TextButton.swift in Sources */,
+				4CE43ED722B24F160098599E /* ListContainer.swift in Sources */,
 				4C12F3A0226B4EDD005BFB0A /* Person.swift in Sources */,
 				4CE081A7225E7FBA00B41864 /* GameTests.swift in Sources */,
+				4CD58E9D22B17949003259D5 /* ObjectContainer.swift in Sources */,
 				4C12F39C226B432E005BFB0A /* Interactable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -481,9 +512,12 @@
 				4CE081A3225E748700B41864 /* Direction.swift in Sources */,
 				4C63C4712261F00700CF94D3 /* Chair.swift in Sources */,
 				4CC79F8D2268AFD300A84460 /* Table.swift in Sources */,
+				4CD58EA222B189D4003259D5 /* ObjectDisplayer.swift in Sources */,
 				4CAFB4DC22B1350E007D4957 /* TextButton.swift in Sources */,
+				4CE43ED822B24F160098599E /* ListContainer.swift in Sources */,
 				4C12F3A1226B4EDD005BFB0A /* Person.swift in Sources */,
 				4C907C192257CA7F008037E4 /* Rect.swift in Sources */,
+				4CD58E9E22B17949003259D5 /* ObjectContainer.swift in Sources */,
 				4C12F39D226B432E005BFB0A /* Interactable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

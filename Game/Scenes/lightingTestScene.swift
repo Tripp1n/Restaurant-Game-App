@@ -19,9 +19,9 @@ class lightningScene: SKScene {
         circle = SKShapeNode(circleOfRadius: 100)
         sprite = SKSpriteNode(imageNamed: "Table")
         
-        button = TextButton("Hello", color: UIColor.red)
+        //button = TextButton("Hello", color: UIColor.red)
         
-        addChild(button)
+        //addChild(button)
         
         torch = SKLightNode()
         torch.categoryBitMask = 4
